@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.pt-safe {
+	padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+	padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@keyframes modalFadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes modalScaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.animate-modal-backdrop {
+	animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+.animate-modal-card {
+	animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
