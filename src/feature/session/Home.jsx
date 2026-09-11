@@ -3,7 +3,14 @@ import { capitalizeWords, formatIDR, formatRelativeTime } from "../../utils/form
 import { calculateSessionTotal } from "../../utils/calculations";
 import ConfirmationModal from "../../components/ConfirmationModal";
 
-export default function Home({ onStartSession, currentSession, savedSessions, onOpenSession, onResumeSession, onDiscardSession }) {
+export default function Home({
+    onStartSession,
+    currentSession,
+    savedSessions,
+    onOpenSession,
+    onResumeSession,
+    onDiscardSession
+}) {
     const [sessionName, setSessionName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);

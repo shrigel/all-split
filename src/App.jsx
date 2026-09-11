@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { useSessionManager } from "./hooks/useSessionManager";
 import ProtectedRoute from "./components/ProtectdRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
 import Home from "./feature/session/Home";
@@ -8,256 +9,158 @@ import Header from "./components/Header";
 import Bills from "./feature/session/Bill/Bills";
 import BillForm from "./feature/session/Bill/BillForm";
 import Result from "./feature/session/Result";
-import { loadCurrentSession, saveCurrentSession, loadSavedSessions, saveSavedSessions, clearCurrentSession } from "./utils/sessionStorage";
 
 function App() {
+	const {
+		currentSession,
+		savedSessions,
+		handleStartSession,
+		handleResumeSession,
+		handleDiscardSession,
+		handleAddParticipants,
+		handleRemoveParticipant,
+		handleSaveBill,
+		handleDeleteBill,
+		handleClearBillsAndBack,
+		handleCalculateSession,
+		handleOpenSession,
+	} = useSessionManager();
+
 	const navigate = useNavigate();
+	const location = useLocation();
+
 	const [isFormDirty, setIsFormDirty] = useState(false);
-	const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+	const [isBackConfModalOpen, setIsBackConfModalOpen] = useState(false);
 
 	const handleLogoClick = () => {
 		if (isFormDirty) {
-			setIsLeaveModalOpen(true);
+			setIsBackConfModalOpen(true);
 		} else {
 			if (location.pathname.startsWith('/result/')) {
-				setCurrentSession({ name: '', participants: [], bills: [] });
+				handleDiscardSession();
 			}
 			navigate('/');
 		}
 	};
 
-	const handleConfirmLeave = () => {
-		setIsLeaveModalOpen(false);
+	const handleBack = () => {
+		setIsBackConfModalOpen(false);
 		setIsFormDirty(false);
 		navigate('/');
 	};
 
-	const [currentSession, setCurrentSession] = useState(() => loadCurrentSession());
-
-	useEffect(() => {
-		saveCurrentSession(currentSession);
-	}, [currentSession]);
-
-	const [savedSessions, setSavedSessions] = useState(() => loadSavedSessions());
-
-	useEffect(() => {
-		saveSavedSessions(savedSessions);
-	}, [savedSessions]);
-
-	const handleResumeSession = () => {
-		if (currentSession.participants.length >= 2) {
-			navigate('/bills');
-		} else {
-			navigate('/participants');
-		}
-	};
-
-	const handleDiscardSession = () => {
-		setCurrentSession({ name: '', participants: [], bills: [] });
-	};
-
-	const handleStartSession = (name) => {
-		setCurrentSession({
-			name,
-			participants: [],
-			bills: []
-		});
-
-		navigate('/participants');
-	}
-
-	const handleAddParticipants = (name) => {
-		const newParticipant = {
-			id: 'p-' + Date.now(),
-			name
-		};
-
-		setCurrentSession((prev) => ({
-			...prev,
-			participants: [...prev.participants, newParticipant],
-		}));
-	};
-
-	const handleRemoveParticipant = (id) => {
-		setCurrentSession((prev) => ({
-			...prev,
-			participants: prev.participants.filter((p) => p.id !== id),
-		}));
-	};
-
-	const handleSaveBill = (bill) => {
-		setCurrentSession((prev) => {
-			const existingIndex = prev.bills.findIndex((b) => b.id === bill.id);
-
-			if (existingIndex >= 0) {
-				const updated = [...prev.bills];
-				updated[existingIndex] = bill;
-
-				return { ...prev, bills: updated };
-			} else {
-				return { ...prev, bills: [...prev.bills, bill] };
-			}
-		});
-	};
-
-	const handleDeleteBill = (billId) => {
-		setCurrentSession((prev) => ({
-			...prev,
-			bills: prev.bills.filter((b) => b.id !== billId)
-		}));
-	};
-
-	const handleCalculateSession = () => {
-		const sessionId = currentSession.id || 'session-' + Date.now();
-		const sessionToSave = {
-			...currentSession,
-			id: sessionId,
-			createdAt: Date.now(),
-			expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
-		};
-
-		setSavedSessions((prev) => {
-			const existingIndex = prev.findIndex((s) => s.id === sessionToSave.id);
-			if (existingIndex >= 0) {
-				const updated = [...prev];
-				updated[existingIndex] = sessionToSave;
-				return updated;
-			}
-			return [sessionToSave, ...prev];
-		});
-
-		navigate(`/result/${sessionId}`);
-	};
-
-	const handleBackToHomeFromResult = () => {
-		setCurrentSession({ name: '', participants: [], bills: [] });
+	const handleCleanSession = () => {
+		handleDiscardSession();
 		navigate('/');
 	};
 
-	const handleOpenSession = (sessionId) => {
-		const session = savedSessions.find((s) => s.id === sessionId);
-
-		if (session) {
-			navigate(`/result/${sessionId}`);
-		}
-	}
-
 	return (
-		<div className="min-h-screen flex flex-col bg-surface text-on-surface">
-			<Header onLogoClick={handleLogoClick} />
+		<>
+			<div className="min-h-screen flex flex-col bg-surface text-on-surface">
+				<Header onLogoClick={handleLogoClick} />
 
-			<div className="flex-1 flex flex-col">
-				<Routes>
-					<Route path="*" element={<Navigate to="/" replace />} />
+				<div className="flex-1 flex flex-col">
+					<Routes>
+						<Route path="*" element={<Navigate to="/" replace />} />
 
-					<Route
-						path="/"
-						element={<Home
-							onStartSession={handleStartSession}
-							currentSession={currentSession}
-							savedSessions={savedSessions}
-							onOpenSession={handleOpenSession}
-							onResumeSession={handleResumeSession}
-							onDiscardSession={handleDiscardSession}
-						/>}
-					/>
+						<Route
+							path="/"
+							element={<Home
+								onStartSession={handleStartSession}
+								currentSession={currentSession}
+								savedSessions={savedSessions}
+								onOpenSession={handleOpenSession}
+								onResumeSession={handleResumeSession}
+								onDiscardSession={handleDiscardSession}
+							/>}
+						/>
 
-					<Route
-						path="/participants"
-						element={
-							<ProtectedRoute condition={Boolean(currentSession.name.trim())} redirectTo="/">
-								<ProtectedRoute condition={Boolean(currentSession.bills.length === 0)} redirectTo="/bills">
-									<Participants
-										sessionName={currentSession.name}
-										setSession
-										participants={currentSession.participants}
-										onAddParticipant={handleAddParticipants}
-										onRemoveParticipant={handleRemoveParticipant}
-										onDirtyChange={setIsFormDirty}
-										onNext={() => navigate('/bills')}
-										onBack={() => {
-											setCurrentSession({ name: '', participants: [], bills: [] });
-											navigate('/');
-										}}
+						<Route
+							path="/participants"
+							element={
+								<ProtectedRoute condition={Boolean(currentSession.name.trim())} redirectTo="/">
+									<ProtectedRoute condition={Boolean(currentSession.bills.length === 0)} redirectTo="/bills">
+										<Participants
+											sessionName={currentSession.name}
+											participants={currentSession.participants}
+											onAddParticipant={handleAddParticipants}
+											onRemoveParticipant={handleRemoveParticipant}
+											onDirtyChange={setIsFormDirty}
+											onNext={() => navigate('/bills')}
+											onBack={handleCleanSession}
+										/>
+									</ProtectedRoute>
+								</ProtectedRoute>
+							}
+						/>
+
+						<Route
+							path="/bills"
+							element={
+								<ProtectedRoute condition={currentSession.participants.length >= 2} redirectTo="/participants">
+									<Bills
+										session={currentSession}
+										onAddBill={() => navigate('/bills/create')}
+										onEditBill={(bill) => navigate(`/bills/edit/${bill.id}`)}
+										onDeleteBill={handleDeleteBill}
+										onCalculateSession={handleCalculateSession}
+										onBack={handleClearBillsAndBack}
 									/>
 								</ProtectedRoute>
-							</ProtectedRoute>
-						}
-					/>
+							}
+						/>
 
-					<Route
-						path="/bills"
-						element={
-							<ProtectedRoute condition={currentSession.participants.length >= 2} redirectTo="/participants">
-								<Bills
-									session={currentSession}
-									onAddBill={() => navigate('/bills/create')}
-									onEditBill={(bill) => navigate(`/bills/edit/${bill.id}`)}
-									onDeleteBill={handleDeleteBill}
-									onCalculateSession={handleCalculateSession}
-									onBack={() => {
-										setCurrentSession(prev => ({ ...prev, bills: [] }));
-										navigate('/participants');
-									}}
+						<Route
+							path="/bills/create"
+							element={
+								<ProtectedRoute condition={currentSession.participants.length >= 2} redirectTo="/participants">
+									<BillForm
+										participants={currentSession.participants}
+										onDirtyChange={setIsFormDirty}
+										onSaveBill={handleSaveBill}
+										onBack={() => navigate('/bills')}
+									/>
+								</ProtectedRoute>
+							}
+						/>
+
+						<Route
+							path="/bills/edit/:billId"
+							element={
+								<ProtectedRoute condition={currentSession.bills.length > 0} redirectTo="/bills">
+									<BillForm
+										participants={currentSession.participants}
+										onDirtyChange={setIsFormDirty}
+										bills={currentSession.bills}
+										onSaveBill={handleSaveBill}
+										onBack={() => navigate('/bills')}
+									/>
+								</ProtectedRoute>
+							}
+						/>
+
+						<Route
+							path="/result/:sessionId"
+							element={
+								<Result
+									savedSessions={savedSessions}
+									onBackToHome={handleCleanSession}
 								/>
-							</ProtectedRoute>
-						}
-					/>
+							}
+						/>
+					</Routes>
+				</div>
 
-					<Route
-						path="/bills/create"
-						element={
-							<ProtectedRoute condition={currentSession.participants.length >= 2} redirectTo="/participants">
-								<BillForm
-									participants={currentSession.participants}
-									onDirtyChange={setIsFormDirty}
-									onSaveBill={(newBill) => {
-										handleSaveBill(newBill);
-										navigate('/bills');
-									}}
-									onBack={() => navigate('/bills')}
-								/>
-							</ProtectedRoute>
-						}
-					/>
-
-					<Route
-						path="/bills/edit/:billId"
-						element={
-							<ProtectedRoute condition={currentSession.bills.length > 0} redirectTo="/bills">
-								<BillForm
-									participants={currentSession.participants}
-									onDirtyChange={setIsFormDirty}
-									bills={currentSession.bills}
-									onSaveBill={(bill) => {
-										handleSaveBill(bill);
-										navigate('/bills');
-									}}
-									onBack={() => navigate('/bills')}
-								/>
-							</ProtectedRoute>
-						}
-					/>
-
-					<Route
-						path="/result/:sessionId"
-						element={
-							<Result
-								savedSessions={savedSessions}
-								onBackToHome={handleBackToHomeFromResult}
-							/>
-						}
-					/>
-				</Routes>
 			</div>
 
+			{/* Back Confirmation Modal */}
 			<ConfirmationModal
-				isOpen={isLeaveModalOpen}
-				onClose={() => setIsLeaveModalOpen(false)}
-				onConfirm={handleConfirmLeave}
+				isOpen={isBackConfModalOpen}
+				onClose={() => setIsBackConfModalOpen(false)}
+				onConfirm={handleBack}
 				confirmationMessage="Perubahan yang belum disimpan akan hilang jika Anda kembali ke Beranda. Apakah Anda yakin ingin melanjutkan?"
 			/>
-		</div>
+		</>
 	);
 }
 

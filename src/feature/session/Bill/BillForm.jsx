@@ -6,7 +6,13 @@ import AdjustmentModal from "./modal/AdjustmentModal";
 import ScanReceiptModal from "./modal/ScanReceiptModal";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 
-export default function BillForm({ participants, bills = [], onSaveBill, onDirtyChange, onBack }) {
+export default function BillForm({
+    participants,
+    bills = [],
+    onSaveBill,
+    onDirtyChange,
+    onBack
+}) {
     const [billName, setBillName] = useState("");
     const [payerId, setPayerId] = useState("");
     const [items, setItems] = useState([]);
