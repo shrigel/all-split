@@ -8,7 +8,7 @@ import Header from "./components/Header";
 import Bills from "./feature/session/Bill/Bills";
 import BillForm from "./feature/session/Bill/BillForm";
 import Result from "./feature/session/Result";
-import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/sessionStorage";
+import { loadCurrentSession, saveCurrentSession, loadSavedSessions, saveSavedSessions, clearCurrentSession } from "./utils/sessionStorage";
 
 function App() {
 	const navigate = useNavigate();
@@ -32,16 +32,16 @@ function App() {
 		navigate('/');
 	};
 
-	const [currentSession, setCurrentSession] = useState(() => loadFromStorage(STORAGE_KEYS.CURRENT_SESSION, INITIAL_SESSION));
+	const [currentSession, setCurrentSession] = useState(() => loadCurrentSession());
 
 	useEffect(() => {
-		saveToStorage(STORAGE_KEYS.CURRENT_SESSION, currentSession);
+		saveCurrentSession(currentSession);
 	}, [currentSession]);
 
-	const [savedSessions, setSavedSessions] = useState(() => loadFromStorage(STORAGE_KEYS.SAVED_SESSIONS, []));
+	const [savedSessions, setSavedSessions] = useState(() => loadSavedSessions());
 
 	useEffect(() => {
-		saveToStorage(STORAGE_KEYS.SAVED_SESSIONS, savedSessions);
+		saveSavedSessions(savedSessions);
 	}, [savedSessions]);
 
 	const handleResumeSession = () => {

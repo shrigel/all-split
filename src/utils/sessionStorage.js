@@ -30,3 +30,10 @@ export const loadFromStorage = (key, fallback) => {
         return fallback;
     }
 };
+
+export const loadCurrentSession = () => loadFromStorage(STORAGE_KEYS.CURRENT_SESSION, INITIAL_SESSION);
+export const saveCurrentSession = (session) => saveToStorage(STORAGE_KEYS.CURRENT_SESSION, session);
+export const clearCurrentSession = () => saveCurrentSession(INITIAL_SESSION);
+
+export const loadSavedSessions = () => loadFromStorage(STORAGE_KEYS.SAVED_SESSIONS, []);
+export const saveSavedSessions = (sessions) => saveToStorage(STORAGE_KEYS.SAVED_SESSIONS, sessions);
