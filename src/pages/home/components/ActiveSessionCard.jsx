@@ -40,6 +40,7 @@ export default function ActiveSessionCard({
             <Button
                 onClick={onResume}
                 icon="arrow_forward"
+                iconPosition="end"
             >
                 Lanjutkan Sesi Ini
             </Button>

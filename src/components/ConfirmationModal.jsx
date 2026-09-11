@@ -1,8 +1,10 @@
+import Button from "./Button";
 import Modal from "./Modal";
 
 export default function ConfirmationModal({
     isOpen,
-    btnLabel = "Kembali",
+    btnLabel = "Konfirmasi",
+    variant,
     onClose,
     onConfirm,
     confirmationMessage
@@ -44,18 +46,19 @@ export default function ConfirmationModal({
             </div>
 
             <div className="flex items-center p-4 gap-2">
-                <button
+                <Button
+                    variant="tonal"
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 rounded-md bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold transition-colors"
                 >
                     Batal
-                </button>
-                <button
+                </Button>
+
+                <Button
+                    variant={variant}
                     onClick={onConfirm}
-                    className="flex-1 px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-white font-semibold transition-colors"
                 >
                     {btnLabel}
-                </button>
+                </Button>
             </div>
         </Modal>
     );

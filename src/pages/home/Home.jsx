@@ -93,6 +93,7 @@ export default function Home({
 
             <ConfirmationModal
                 btnLabel="Hapus"
+                variant="danger"
                 isOpen={isDiscardModalOpen}
                 onClose={() => setIsDiscardModalOpen(false)}
                 onConfirm={handleConfirmDiscard}

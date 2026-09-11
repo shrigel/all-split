@@ -153,8 +153,8 @@ function App() {
 
 			</div>
 
-			{/* Back Confirmation Modal */}
 			<ConfirmationModal
+				btnLabel="Kembali"
 				isOpen={isBackConfModalOpen}
 				onClose={() => setIsBackConfModalOpen(false)}
 				onConfirm={handleBack}

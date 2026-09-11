@@ -9,19 +9,29 @@ export default function Button({
     children,
     variant = "primary",
     icon,
+    iconPosition = "start", // 'start' | 'end'
     className = "",
     type = "button",
     ...props
 }) {
+    const iconElement = icon ? (
+        <span className="material-symbols-outlined text-[18px]">
+            {icon}
+        </span>
+    ) : null;
+
     return (
         <button
             type={type}
             {...props}
-            className={`flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer ${VARIANTS[variant] || VARIANTS.primary
+            className={`flex items-center justify-center gap-2 w-full h-12 rounded-xl font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer ${VARIANTS[variant] || VARIANTS.primary
                 } ${className}`}
         >
-            {icon && <span className="material-symbols-outlined text-[18px]">{icon}</span>}
+            {iconPosition === "start" && iconElement}
+
             {children}
+
+            {iconPosition === "end" && iconElement}
         </button>
     );
 }
