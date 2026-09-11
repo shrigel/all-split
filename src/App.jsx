@@ -4,7 +4,7 @@ import { useSessionManager } from "./hooks/useSessionManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
 import Header from "./components/Header";
-import Home from "./pages/homes/Home";
+import Home from "./pages/home/Home";
 import Participants from "./pages/participants/Participants";
 import Bills from "./pages/bills/Bills";
 import BillForm from "./pages/bills/BillForm";

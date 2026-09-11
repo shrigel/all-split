@@ -2,6 +2,7 @@ import { useState } from "react";
 import { capitalizeWords, sanitizeAlphanumeric } from "../../utils/formatter";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ActiveSessionCard from "./components/ActiveSessionCard";
+import NewSessionForm from "./components/NewSessionForm";
 import SavedSessionList from "./components/SavedSessionList";
 
 export default function Home({
@@ -18,11 +19,6 @@ export default function Home({
     const [isNewSessionModalOpen, setIsNewSessionModalOpen] = useState(false);
     const hasActiveSession = Boolean(currentSession?.name?.trim());
 
-    const handleSessionNameChange = (e) => {
-        setSessionName(sanitizeAlphanumeric(e.target.value));
-        if (errorMessage) setErrorMessage('');
-    };
-
     const startSession = () => {
         onStartSession(capitalizeWords(sessionName.trim()));
         setErrorMessage('');
@@ -36,6 +32,11 @@ export default function Home({
     const handleConfirmDiscard = () => {
         onDiscardSession();
         setIsDiscardModalOpen(false);
+    };
+
+    const handleSessionNameChange = (e) => {
+        setSessionName(sanitizeAlphanumeric(e.target.value));
+        if (errorMessage) setErrorMessage('');
     };
 
     const handleSubmit = (e) => {
@@ -76,42 +77,12 @@ export default function Home({
                 )}
 
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-8">
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="session-name" className="text-xs text-on-surface font-semibold uppercase tracking-wider">
-                            Nama Patungan
-                        </label>
-                        <div className="relative flex items-center">
-                            <span className="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">
-                                edit_note
-                            </span>
-                            <input
-                                type="text"
-                                name="sessionName"
-                                id="session-name"
-                                placeholder="cth. Makan Bareng atau Liburan Bali"
-                                autoComplete="off"
-                                value={sessionName}
-                                onChange={handleSessionNameChange}
-                                className={`w-full h-11 pl-11 pr-3 rounded-xl bg-white text-slate-800 text-sm placeholder:text-slate-400 outline-none transition-all ${errorMessage
-                                    ? 'border border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                                    : 'border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary'
-                                    }`}
-                            />
-                        </div>
-                        {errorMessage && (
-                            <div className="flex items-center gap-1.5 text-rose-500 text-xs mt-1">
-                                <span className="material-symbols-outlined text-[16px]">error</span>
-                                <span>{errorMessage}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    <button type="submit" className="flex items-center justify-center gap-2 h-12 w-full rounded-xl bg-primary hover:bg-primary-hover text-white font-medium text-sm transition-colors active:scale-[0.99]">
-                        <span className="material-symbols-outlined text-[20px]">add_circle</span>
-                        <span>Mulai Hitung Tagihan</span>
-                    </button>
-                </form>
+                <NewSessionForm
+                    sessionName={sessionName}
+                    onSessionNameChange={handleSessionNameChange}
+                    errorMessage={errorMessage}
+                    onSubmit={handleSubmit}
+                />
 
                 <SavedSessionList
                     savedSessions={savedSessions}
