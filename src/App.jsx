@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useSessionManager } from "./hooks/useSessionManager";
-import ProtectedRoute from "./components/ProtectdRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
 import Home from "./feature/session/Home";
 import Participants from "./feature/session/Participants";
