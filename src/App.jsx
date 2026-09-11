@@ -3,12 +3,12 @@ import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-
 import { useSessionManager } from "./hooks/useSessionManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
-import Home from "./feature/session/Home";
-import Participants from "./feature/session/Participants";
 import Header from "./components/Header";
-import Bills from "./feature/session/Bill/Bills";
-import BillForm from "./feature/session/Bill/BillForm";
-import Result from "./feature/session/Result";
+import Home from "./pages/homes/Home";
+import Participants from "./pages/participants/Participants";
+import Bills from "./pages/bills/Bills";
+import BillForm from "./pages/bills/BillForm";
+import Result from "./pages/results/Result";
 
 function App() {
 	const {

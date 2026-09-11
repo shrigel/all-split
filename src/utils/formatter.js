@@ -1,17 +1,21 @@
-export function capitalizeWords(text) {
-    return text
-        .trim()
-        .split(/\s+/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-}
-
 export function formatIDR(amount) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
         maximumFractionDigits: 0,
     }).format(amount);
+}
+
+export function sanitizeAlphanumeric(text) {
+    return text.replace(/[^a-zA-Z0-9\s]/g, '');
+}
+
+export function capitalizeWords(text) {
+    return text
+        .trim()
+        .split(/\s+/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
 }
 
 export function formatRelativeTime(timestamp) {
