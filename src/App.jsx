@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectdRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
 import Home from "./feature/session/Home";
 import Participants from "./feature/session/Participants";
@@ -7,13 +8,7 @@ import Header from "./components/Header";
 import Bills from "./feature/session/Bill/Bills";
 import BillForm from "./feature/session/Bill/BillForm";
 import Result from "./feature/session/Result";
-
-function ProtectedRoute({ condition, redirectTo = "/", children }) {
-	if (!condition) {
-		return <Navigate to={redirectTo} replace />;
-	}
-	return children;
-}
+import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/sessionStorage";
 
 function App() {
 	const navigate = useNavigate();
@@ -37,36 +32,16 @@ function App() {
 		navigate('/');
 	};
 
-	const [currentSession, setCurrentSession] = useState(() => {
-		const saved = localStorage.getItem('allsplit_current_session');
-		if (saved) {
-			try {
-				return JSON.parse(saved);
-			} catch (e) {
-				console.error("Gagal membaca sesi tersimpan", e);
-			}
-		}
-		return { name: '', participants: [], bills: [] };
-	});
+	const [currentSession, setCurrentSession] = useState(() => loadFromStorage(STORAGE_KEYS.CURRENT_SESSION, INITIAL_SESSION));
 
 	useEffect(() => {
-		localStorage.setItem('allsplit_current_session', JSON.stringify(currentSession));
+		saveToStorage(STORAGE_KEYS.CURRENT_SESSION, currentSession);
 	}, [currentSession]);
 
-	const [savedSessions, setSavedSessions] = useState(() => {
-		const saved = localStorage.getItem('allsplit_saved_sessions');
-		if (saved) {
-			try {
-				return JSON.parse(saved);
-			} catch (e) {
-				console.error("Gagal membaca saved sessions", e);
-			}
-		}
-		return [];
-	});
+	const [savedSessions, setSavedSessions] = useState(() => loadFromStorage(STORAGE_KEYS.SAVED_SESSIONS, []));
 
 	useEffect(() => {
-		localStorage.setItem('allsplit_saved_sessions', JSON.stringify(savedSessions));
+		saveToStorage(STORAGE_KEYS.SAVED_SESSIONS, savedSessions);
 	}, [savedSessions]);
 
 	const handleResumeSession = () => {
