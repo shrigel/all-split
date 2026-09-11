@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { calculateSessionTotal, calculateParticipantBalances, calculateSettlements, calculateBillTotal } from "../../utils/calculations";
 import { formatDate, formatIDR } from "../../utils/formatter";
 import WhatsAppLogo from "../../components/WhatsAppLogo";
-import BillDetailModal from "./Bill/modal/BillDetailModal";
+import BillDetailModal from "./components/BillDetailModal";
 
 export default function Result({ savedSessions, onBackToHome }) {
     const { sessionId } = useParams();

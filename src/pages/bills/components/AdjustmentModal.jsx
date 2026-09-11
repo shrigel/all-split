@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { formatIDR, capitalizeWords } from "../../../../utils/formatter";
-import Modal from "../../../../components/Modal";
+import { formatIDR, capitalizeWords } from "../../../utils/formatter";
+import Modal from "../../../components/Modal";
 
 export default function AdjustmentModal({
     isOpen,

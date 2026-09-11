@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { capitalizeWords, formatIDR } from "../../../utils/formatter";
-import ItemModal from "./modal/ItemModal";
-import AdjustmentModal from "./modal/AdjustmentModal";
-import ScanReceiptModal from "./modal/ScanReceiptModal";
-import ConfirmationModal from "../../../components/ConfirmationModal";
+import { capitalizeWords, formatIDR } from "../../utils/formatter";
+import ItemModal from "./components/ItemModal";
+import AdjustmentModal from "./components/AdjustmentModal";
+import ScanReceiptModal from "./components/ScanReceiptModal";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 export default function BillForm({
     participants,

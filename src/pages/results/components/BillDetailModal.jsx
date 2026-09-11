@@ -1,6 +1,6 @@
-import Modal from "../../../../components/Modal";
-import { formatIDR, capitalizeWords } from "../../../../utils/formatter";
-import { calculateBillTotal } from "../../../../utils/calculations";
+import Modal from "../../../components/Modal";
+import { formatIDR, capitalizeWords } from "../../../utils/formatter";
+import { calculateBillTotal } from "../../../utils/calculations";
 
 export default function BillDetailModal({ isOpen, onClose, bill, participants = [] }) {
     if (!bill) return null;

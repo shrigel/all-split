@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { formatIDR } from "../../../utils/formatter";
-import { calculateBillTotal, calculateSessionTotal } from "../../../utils/calculations";
-import ConfirmationModal from "../../../components/ConfirmationModal";
+import { formatIDR } from "../../utils/formatter";
+import { calculateBillTotal, calculateSessionTotal } from "../../utils/calculations";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 export default function Bills({
     session,
