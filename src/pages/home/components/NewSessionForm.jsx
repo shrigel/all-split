@@ -25,7 +25,7 @@ export default function NewSessionForm({
             />
 
             <Button
-                icon="add_circle"
+                iconStart="add_circle"
                 type="submit"
             >
                 Mulai Hitung Tagihan
