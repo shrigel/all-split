@@ -1,6 +1,4 @@
-import { formatIDR, formatRelativeTime } from "../../../utils/formatter"
-import { calculateSessionTotal } from "../../../utils/calculations"
-
+import SavedSessionItem from "./SavedSessionItem"
 
 export default function SavedSessionList({
     savedSessions,
@@ -32,36 +30,13 @@ export default function SavedSessionList({
                 </div>
             ) : (
                 <div className="flex flex-col gap-2">
-                    {savedSessions.map((session) => {
-                        const sessionTotal = formatIDR(calculateSessionTotal(session.bills));
-
-                        return (
-                            <div key={session.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-outline-variant/40">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-sm font-bold">
-                                        {session.name}
-                                    </span>
-
-                                    <span className="text-xs text-slate-500">
-                                        {session.participants.length} Peserta • <span className="font-semibold">{sessionTotal}</span>
-                                    </span>
-
-                                    <span className="text-xs text-slate-500">
-                                        {formatRelativeTime(session.createdAt || session.id)}
-                                    </span>
-                                </div>
-
-                                <button
-                                    onClick={() => onOpenSession(session.id)}
-                                    className="flex items-center gap-2 p-2"
-                                >
-                                    <span className="text-xs text-primary font-medium">
-                                        Lihat Detail
-                                    </span>
-                                </button>
-                            </div>
-                        )
-                    })}
+                    {savedSessions.map((session) => (
+                        <SavedSessionItem
+                            key={session.id}
+                            session={session}
+                            onOpen={() => onOpenSession(session.id)}
+                        />
+                    ))}
                 </div>
             )}
         </section>

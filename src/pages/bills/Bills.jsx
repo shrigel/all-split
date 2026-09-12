@@ -220,6 +220,7 @@ export default function Bills({
             </main>
 
             <ConfirmationModal
+                btnLabel="Kembali"
                 isOpen={isBackModalOpen}
                 onConfirm={onBack}
                 onClose={() => setIsBackModalOpen(false)}
@@ -228,6 +229,7 @@ export default function Bills({
 
             <ConfirmationModal
                 btnLabel="Hapus"
+                btnVariant="danger"
                 isOpen={Boolean(billToDelete)}
                 onClose={() => setBillToDelete(null)}
                 onConfirm={() => {

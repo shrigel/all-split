@@ -17,7 +17,7 @@ export default function ActiveSessionCard({
                 <button
                     type="button"
                     onClick={onDiscard}
-                    title="Hapus sesi ini"
+                    aria-label={`Hapus sesi ${session.name}`}
                     className="flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
                 >
                     <span className="material-symbols-outlined text-[18px]">

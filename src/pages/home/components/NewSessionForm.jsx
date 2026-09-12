@@ -13,7 +13,7 @@ export default function NewSessionForm({
             className="flex flex-col gap-4 mb-8"
         >
             <Input
-                label="nama patungan"
+                label="Nama Patungan"
                 icon="edit_note"
                 id="session-name"
                 name="sessionName"

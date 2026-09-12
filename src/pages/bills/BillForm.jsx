@@ -548,6 +548,7 @@ export default function BillForm({
             />
 
             <ConfirmationModal
+                btnLabel="Kembali"
                 isOpen={isBackModalOpen}
                 onClose={() => setIsBackModalOpen(false)}
                 onConfirm={handleBack}

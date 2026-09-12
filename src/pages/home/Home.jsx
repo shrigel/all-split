@@ -15,6 +15,7 @@ export default function Home({
 }) {
     const [sessionName, setSessionName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
     const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
     const [isNewSessionModalOpen, setIsNewSessionModalOpen] = useState(false);
     const hasActiveSession = Boolean(currentSession?.name?.trim());
@@ -93,7 +94,7 @@ export default function Home({
 
             <ConfirmationModal
                 btnLabel="Hapus"
-                variant="danger"
+                btnVariant="danger"
                 isOpen={isDiscardModalOpen}
                 onClose={() => setIsDiscardModalOpen(false)}
                 onConfirm={handleConfirmDiscard}

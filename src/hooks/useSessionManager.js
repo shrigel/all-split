@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
     INITIAL_SESSION,
     loadCurrentSession,
@@ -9,8 +8,6 @@ import {
 } from "../utils/sessionStorage";
 
 export function useSessionManager() {
-    const navigate = useNavigate();
-
     const [currentSession, setCurrentSession] = useState(() => loadCurrentSession());
     const [savedSessions, setSavedSessions] = useState(() => loadSavedSessions());
 
@@ -22,25 +19,18 @@ export function useSessionManager() {
         saveSavedSessions(savedSessions);
     }, [savedSessions]);
 
-    const handleStartSession = (name) => {
-        setCurrentSession({ ...INITIAL_SESSION, name });
-
-        navigate('/participants');
+    const startSession = (name) => {
+        setCurrentSession({
+            ...INITIAL_SESSION,
+            name
+        });
     };
 
-    const handleResumeSession = () => {
-        if (currentSession.participants.length >= 2) {
-            navigate('/bills');
-        } else {
-            navigate('/participants');
-        }
-    };
-
-    const handleDiscardSession = () => {
+    const discardSession = () => {
         setCurrentSession(INITIAL_SESSION);
     };
 
-    const handleAddParticipants = (name) => {
+    const addParticipant = (name) => {
         const newParticipant = {
             id: 'p-' + Date.now(),
             name
@@ -48,82 +38,94 @@ export function useSessionManager() {
 
         setCurrentSession((prev) => ({
             ...prev,
-            participants: [...prev.participants, newParticipant],
+            participants: [
+                ...prev.participants,
+                newParticipant
+            ],
         }));
     };
 
-    const handleRemoveParticipant = (id) => {
+    const removeParticipant = (id) => {
         setCurrentSession((prev) => ({
             ...prev,
-            participants: prev.participants.filter((p) => p.id !== id)
+            participants: prev.participants.filter(
+                (p) => p.id !== id
+            )
         }));
     };
 
-    const handleSaveBill = (bill) => {
+    const saveBill = (bill) => {
         setCurrentSession((prev) => {
-            const existingIndex = prev.bills.findIndex((b) => b.id === bill.id);
+            const existingIndex = prev.bills.findIndex(
+                (b) => b.id === bill.id
+            );
 
             if (existingIndex >= 0) {
-                const updated = [...prev.bills];
-                updated[existingIndex] = bill;
+                const updatedBills = [...prev.bills];
 
-                return { ...prev, bills: updated };
-            } else {
-                return { ...prev, bills: [...prev.bills, bill] };
+                updatedBills[existingIndex] = bill;
+
+                return {
+                    ...prev,
+                    bills: updatedBills
+                };
             }
-        });
 
-        navigate('/bills');
+            return {
+                ...prev,
+                bills: [
+                    ...prev.bills,
+                    bill
+                ]
+            };
+        });
     };
 
-    const handleDeleteBill = (billId) => {
+    const deleteBill = (billId) => {
         setCurrentSession((prev) => ({
             ...prev,
-            bills: prev.bills.filter((b) => b.id !== billId)
+            bills: prev.bills.filter(
+                (b) => b.id !== billId
+            )
         }));
     };
 
-    const handleClearBillsAndBack = () => {
-        setCurrentSession((prev) => ({ ...prev, bills: [] }));
-        navigate('/participants');
+    const clearBills = () => {
+        setCurrentSession((prev) => ({
+            ...prev,
+            bills: []
+        }));
     };
 
-    const handleCalculateSession = () => {
-        const sessionId = 'session-' + Date.now();
+    const finalizeSession = () => {
+        const now = Date.now();
+        const sessionId = `session-${now}`;
+
         const sessionToSave = {
             ...currentSession,
             id: sessionId,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000)
+            createdAt: now,
+            expiresAt: now + (7 * 24 * 60 * 60 * 1000)
         };
 
-        setSavedSessions((prev) => [sessionToSave, ...prev]);
+        setSavedSessions((prev) => [
+            sessionToSave,
+            ...prev
+        ]);
 
-        navigate(`/result/${sessionId}`);
-    };
-
-    const handleOpenSession = (sessionId) => {
-        const session = savedSessions.find((s) => s.id === sessionId);
-
-        if (session) {
-            navigate(`/result/${sessionId}`);
-        }
+        return sessionId;
     };
 
     return {
-        navigate,
         currentSession,
         savedSessions,
-        setCurrentSession,
-        handleStartSession,
-        handleResumeSession,
-        handleDiscardSession,
-        handleAddParticipants,
-        handleRemoveParticipant,
-        handleSaveBill,
-        handleDeleteBill,
-        handleClearBillsAndBack,
-        handleCalculateSession,
-        handleOpenSession,
+        startSession,
+        discardSession,
+        addParticipant,
+        removeParticipant,
+        saveBill,
+        deleteBill,
+        clearBills,
+        finalizeSession,
     };
 }

@@ -207,6 +207,7 @@ export default function Participants({
             </main>
 
             <ConfirmationModal
+                btnLabel="Kembali"
                 isOpen={isBackModalOpen}
                 onClose={() => setIsBackModalOpen(false)}
                 onConfirm={onBack}

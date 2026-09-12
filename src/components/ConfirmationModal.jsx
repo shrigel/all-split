@@ -4,7 +4,7 @@ import Modal from "./Modal";
 export default function ConfirmationModal({
     isOpen,
     btnLabel = "Konfirmasi",
-    variant,
+    btnVariant,
     onClose,
     onConfirm,
     confirmationMessage
@@ -54,7 +54,7 @@ export default function ConfirmationModal({
                 </Button>
 
                 <Button
-                    variant={variant}
+                    variant={btnVariant}
                     onClick={onConfirm}
                 >
                     {btnLabel}
