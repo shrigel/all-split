@@ -113,6 +113,8 @@ export function useSessionManager() {
             ...prev
         ]);
 
+        setCurrentSession(INITIAL_SESSION);
+
         return sessionId;
     };
 

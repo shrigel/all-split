@@ -18,7 +18,7 @@ export default function Button({
         <button
             type={type}
             {...props}
-            className={`flex items-center justify-center gap-2 w-full h-12 rounded-xl font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer
+            className={`flex items-center justify-center gap-2 h-11 rounded-xl font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
                 ${VARIANTS[variant] || VARIANTS.primary} ${className}`}
         >
             {iconStart && <span className="material-symbols-outlined text-[18px]">{iconStart}</span>}

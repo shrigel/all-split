@@ -18,6 +18,7 @@ export default function ActiveSessionCard({
                     type="button"
                     onClick={onDiscard}
                     aria-label={`Hapus sesi ${session.name}`}
+                    title={`Hapus ${session.name}`}
                     className="flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
                 >
                     <span className="material-symbols-outlined text-[18px]">

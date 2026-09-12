@@ -3,8 +3,7 @@ import {
 	Route,
 	Routes,
 	Navigate,
-	useNavigate,
-	useLocation
+	useNavigate
 } from "react-router-dom";
 import { useSessionManager } from "./hooks/useSessionManager";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -31,7 +30,6 @@ function App() {
 	} = useSessionManager();
 
 	const navigate = useNavigate();
-	const location = useLocation();
 
 	const [isFormDirty, setIsFormDirty] = useState(false);
 	const [isBackConfModalOpen, setIsBackConfModalOpen] = useState(false);
@@ -50,6 +48,11 @@ function App() {
 		}
 
 		navigate('/participants');
+	};
+
+	const handleGoHome = () => {
+		setIsFormDirty(false);
+		navigate('/');
 	};
 
 	const handleDiscardSessionAndGoHome = () => {
@@ -97,10 +100,6 @@ function App() {
 			setIsBackConfModalOpen(true);
 
 			return;
-		}
-
-		if (location.pathname.startsWith('/result/')) {
-			discardSession();
 		}
 
 		navigate('/');
@@ -232,7 +231,7 @@ function App() {
 							element={
 								<Result
 									savedSessions={savedSessions}
-									onBackToHome={handleDiscardSessionAndGoHome}
+									onBackToHome={handleGoHome}
 								/>
 							}
 						/>

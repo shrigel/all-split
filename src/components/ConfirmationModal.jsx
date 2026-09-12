@@ -49,6 +49,7 @@ export default function ConfirmationModal({
                 <Button
                     variant="tonal"
                     onClick={onClose}
+                    className="flex-1"
                 >
                     Batal
                 </Button>
@@ -56,6 +57,7 @@ export default function ConfirmationModal({
                 <Button
                     variant={btnVariant}
                     onClick={onConfirm}
+                    className="flex-1"
                 >
                     {btnLabel}
                 </Button>
