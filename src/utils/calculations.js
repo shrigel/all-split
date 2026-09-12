@@ -18,6 +18,29 @@ export function calculateSessionTotal(bills) {
     return (bills || []).reduce((sum, bill) => sum + calculateBillTotal(bill), 0);
 }
 
+export function calculateBilledParticipantCount(
+    items,
+    participants
+) {
+    const billedParticipantIds = new Set();
+
+    items.forEach((item) => {
+        if (item.assignedParticipantIds.includes('all')) {
+            participants.forEach((participant) => {
+                billedParticipantIds.add(participant.id);
+            });
+
+            return;
+        }
+
+        item.assignedParticipantIds.forEach((participantId) => {
+            billedParticipantIds.add(participantId);
+        });
+    });
+
+    return billedParticipantIds.size;
+}
+
 export function calculateParticipantBalances(participants, bills) {
     const balances = {};
 
