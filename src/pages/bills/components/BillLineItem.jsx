@@ -29,7 +29,7 @@ export default function BillLineItem({
 
                 <button
                     type="button"
-                    onClick={() => onEdit(item)}
+                    onClick={onEdit}
                     className="text-gray-400 hover:text-primary transition-all cursor-pointer"
                     title="Edit Item"
                 >
@@ -40,7 +40,7 @@ export default function BillLineItem({
 
                 <button
                     type="button"
-                    onClick={() => (onDelete(item.id))}
+                    onClick={onDelete}
                     className="text-gray-400 hover:text-red-500 transition-all"
                 >
                     <span className="material-symbols-outlined text-[18px]">
@@ -65,7 +65,7 @@ export default function BillLineItem({
                         </span>
                     </div>
                 ) : (
-                    item.assignedParticipantIds.map((pId) => {
+                    item.assignedParticipantIds.map((participantId) => {
                         const participant = participants.find(
                             (participant) => participant.id === participantId
                         );

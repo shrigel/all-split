@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { calculateBillTotal, calculateBilledParticipantCount } from "../../utils/calculations";
-import ItemModal from "./components/ItemModal";
+import ItemModal from "./components/item-modal/ItemModal";
 import AdjustmentModal from "./components/AdjustmentModal";
 import ScanReceiptModal from "./components/ScanReceiptModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -10,6 +10,7 @@ import BillInfoSection from "./components/BillInfoSection";
 import BillItemsSection from "./components/BillItemsSection";
 import BillAdjustmentsSection from "./components/BillAdjustmentsSection";
 import BillSummarySection from "./components/BillSummarySection";
+import { capitalizeWords } from "../../utils/formatter";
 
 export default function BillForm({
     participants,
@@ -191,7 +192,7 @@ export default function BillForm({
             id: billToEdit
                 ? billToEdit.id
                 : `bill-${Date.now()}`,
-            name: billName.trim(),
+            name: capitalizeWords(billName.trim()),
             payerId,
             items,
             adjustments,

@@ -1,6 +1,6 @@
 import { formatIDR } from "../../../utils/formatter";
 
-export default function BiiLineAdjustment({
+export default function BillLineAdjustment({
     adjustment,
     onEdit,
     onDelete

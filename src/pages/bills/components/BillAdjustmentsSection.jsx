@@ -1,5 +1,5 @@
 import Button from "../../../components/Button";
-import BiiLineAdjustment from "./BillLineAdjustment";
+import BillLineAdjustment from "./BillLineAdjustment";
 
 export default function BillAdjustmentsSection({
     adjustments,
@@ -33,7 +33,7 @@ export default function BillAdjustmentsSection({
                     </div>
                 ) : (
                     adjustments.map((adjustment) => (
-                        <BiiLineAdjustment
+                        <BillLineAdjustment
                             key={adjustment.id}
                             adjustment={adjustment}
                             onEdit={() =>
