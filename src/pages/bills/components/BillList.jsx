@@ -1,4 +1,4 @@
-import BillItem from "./BillItem";
+import BillListItem from "./BillListItem";
 
 export default function BillList({
     participants,
@@ -26,7 +26,7 @@ export default function BillList({
             ) : (
                 <div className="flex flex-col bg-white rounded-2xl shadow-xs border border-outline-variant/40 divide-y divide-outline-variant/20 overflow-hidden">
                     {bills.map((bill) => (
-                        <BillItem
+                        <BillListItem
                             key={bill.id}
                             bill={bill}
                             participants={participants}

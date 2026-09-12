@@ -1,7 +1,7 @@
 import { formatIDR } from "../../../utils/formatter";
 import { calculateBillTotal } from "../../../utils/calculations";
 
-export default function BillItem({
+export default function BillListItem({
     bill,
     participants,
     onEditBill,
