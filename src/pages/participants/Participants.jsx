@@ -19,18 +19,26 @@ export default function Participants({
 
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const isReady = participants.length >= 2;
-    const hasUnsavedData = participants.length > 0 || participantName.trim() !== '';
+    const hasUnsavedDraft = participantName.trim() !== '';
+
+    const handleBack = () => {
+        if (hasUnsavedDraft) {
+            setIsBackModalOpen(true);
+        } else {
+            onBack();
+        }
+    };
 
     useEffect(() => {
         const handleBeforeUnload = (e) => {
-            if (hasUnsavedData) {
+            if (hasUnsavedDraft) {
                 e.preventDefault();
                 e.returnValue = '';
             }
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [participants, participantName]);
+    }, [hasUnsavedDraft]);
 
     useEffect(() => {
         if (onDirtyChange) {
@@ -78,7 +86,7 @@ export default function Participants({
                 <div>
                     <button
                         type="button"
-                        onClick={() => { hasUnsavedData ? setIsBackModalOpen(true) : onBack() }}
+                        onClick={handleBack}
                         className="flex items-center gap-2 text-primary bg-surface-container/75 px-2 py-1 rounded-full border border-outline-variant/40 hover:bg-surface-container-high transition-all"
                     >
                         <span className="material-symbols-outlined text-[16px]">
@@ -122,7 +130,7 @@ export default function Participants({
                 isOpen={isBackModalOpen}
                 onClose={() => setIsBackModalOpen(false)}
                 onConfirm={onBack}
-                confirmationMessage="Apakah Anda yakin ingin kembali? Daftar peserta yang telah dimasukkan akan hilang."
+                confirmationMessage="Nama peserta yang belum ditambahkan akan hilang. Apakah Anda yakin ingin kembali"
             />
         </>
     )
