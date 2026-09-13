@@ -95,14 +95,14 @@ export default function ParticipantSelector({
                             }
                             aria-pressed={selected}
                             className={`flex items-center gap-2 p-2.5 rounded-xl transition-all text-left cursor-pointer border ${selected
-                                    ? "border-primary bg-primary/10 shadow-xs"
-                                    : "border-slate-200 bg-white hover:bg-slate-50"
+                                ? "border-primary bg-primary/10 shadow-xs"
+                                : "border-slate-200 bg-white hover:bg-slate-50"
                                 }`}
                         >
                             <div
                                 className={`w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${selected
-                                        ? "bg-primary text-white"
-                                        : "bg-slate-200 text-slate-600"
+                                    ? "bg-primary text-white"
+                                    : "bg-slate-200 text-slate-600"
                                     }`}
                             >
                                 {participant.name
@@ -112,8 +112,8 @@ export default function ParticipantSelector({
 
                             <span
                                 className={`text-xs font-semibold truncate flex-1 ${selected
-                                        ? "text-on-surface"
-                                        : "text-slate-600"
+                                    ? "text-on-surface"
+                                    : "text-slate-600"
                                     }`}
                             >
                                 {participant.name}
@@ -139,9 +139,7 @@ export default function ParticipantSelector({
                     </span>
                 ) : (
                     <>
-                        Dihitung{" "}
-                        {formatIDR(perPersonEstimate)}
-                        {" "}/ orang ({selectedCount} dipilih).
+                        Dihitung {formatIDR(perPersonEstimate)} / orang ({selectedCount} dipilih).
                     </>
                 )}
             </p>

@@ -177,17 +177,11 @@ export default function AdjustmentModal({
                         <div className="text-xs bg-surface-container-low/50 rounded-lg border border-slate-200 overflow-hidden px-4 py-2">
                             {allocationType === "proportional" ? (
                                 <p>
-                                    <span className="font-bold">
-                                        Alokasi Proporsional:
-                                    </span>{" "}
-                                    Biaya dibagi berdasarkan persentase total nominal pesanan masing-masing orang.
+                                    <span className="font-bold">Alokasi Proporsional:</span> Biaya dibagi berdasarkan persentase total nominal pesanan masing-masing orang.
                                 </p>
                             ) : (
                                 <p>
-                                    <span className="font-bold">
-                                        Alokasi Bagi Rata:
-                                    </span>{" "}
-                                    Biaya dibagi sama rata untuk semua orang.
+                                    <span className="font-bold">Alokasi Bagi Rata:</span> Biaya dibagi sama rata untuk semua orang.
                                 </p>
                             )}
                         </div>

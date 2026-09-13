@@ -4,7 +4,7 @@ export const STORAGE_KEYS = {
     DATA_VERSION: 'allsplit_data_version',
 };
 
-export const CURRENT_DATA_VERSION = 2;
+export const CURRENT_DATA_VERSION = 3;
 
 export const INITIAL_SESSION = {
     name: '',
@@ -70,6 +70,27 @@ const migrateSessionV1ToV2 = (session) => {
     };
 };
 
+const migrateSessionV2ToV3 = (session) => {
+    if (!session || session.createdAt) {
+        return session;
+    }
+
+    const timestampFromId = Number(
+        session.id?.replace('session-', '')
+    );
+
+    const createdAt = Number(session.updatedAt) || Number.isFinite(timestampFromId) ? timestampFromId : null;
+
+    if (!createdAt) {
+        return session;
+    }
+
+    return {
+        ...session,
+        createdAt
+    };
+};
+
 const migrateStoredData = (currentSession, savedSessions, fromVersion) => {
     let migratedCurrentSession = currentSession;
     let migratedSavedSessions = savedSessions;
@@ -81,6 +102,14 @@ const migrateStoredData = (currentSession, savedSessions, fromVersion) => {
         migratedSavedSessions = migratedSavedSessions.map((session) => migrateSessionV1ToV2(session));
 
         version = 2;
+    }
+
+    if (version < 3) {
+        migratedCurrentSession = migrateSessionV2ToV3(migratedCurrentSession);
+
+        migratedSavedSessions = migratedSavedSessions.map((session) => migrateSessionV2ToV3(session));
+
+        version = 3;
     }
 
     return {
