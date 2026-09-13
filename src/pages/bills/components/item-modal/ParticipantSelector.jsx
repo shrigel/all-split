@@ -6,26 +6,31 @@ export default function ParticipantSelector({
     onChange,
     subtotal,
 }) {
+    const participantIds = participants.map(
+        (participant) => participant.id
+    );
+
+    const selectedIdSet = new Set(selectedIds);
+
     const isAll =
-        selectedIds.includes("all") ||
-        (
-            participants.length > 0 &&
-            selectedIds.length === participants.length
+        participants.length > 0 &&
+        participantIds.every((id) =>
+            selectedIdSet.has(id)
         );
 
-    const selectedCount = isAll
-        ? participants.length
-        : selectedIds.length;
+    const selectedCount = participants.filter(
+        (participant) =>
+            selectedIdSet.has(participant.id)
+    ).length;
 
     const perPersonEstimate = selectedCount > 0
-        ? Math.round((Number(subtotal) || 0) / selectedCount)
+        ? Math.round(
+            (Number(subtotal) || 0) / selectedCount
+        )
         : 0;
 
     const isParticipantSelected = (participantId) => {
-        return (
-            isAll ||
-            selectedIds.includes(participantId)
-        );
+        return selectedIdSet.has(participantId);
     };
 
     const handleToggleAll = () => {
@@ -34,25 +39,11 @@ export default function ParticipantSelector({
             return;
         }
 
-        onChange(["all"]);
+        onChange(participantIds);
     };
 
     const handleToggleParticipant = (participantId) => {
-        const allParticipantIds = participants.map(
-            (participant) => participant.id
-        );
-
-        if (isAll) {
-            onChange(
-                allParticipantIds.filter(
-                    (id) => id !== participantId
-                )
-            );
-
-            return;
-        }
-
-        if (selectedIds.includes(participantId)) {
+        if (selectedIdSet.has(participantId)) {
             onChange(
                 selectedIds.filter(
                     (id) => id !== participantId
@@ -62,23 +53,16 @@ export default function ParticipantSelector({
             return;
         }
 
-        const updatedIds = [
+        onChange([
             ...selectedIds,
             participantId
-        ];
-
-        if (updatedIds.length === participants.length) {
-            onChange(["all"]);
-            return;
-        }
-
-        onChange(updatedIds);
+        ]);
     };
 
     return (
         <section className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-                <span className="text-xs text-on-surface font-semibold uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
                     Dibagi Ke Siapa?
                 </span>
 
@@ -96,7 +80,9 @@ export default function ParticipantSelector({
             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
                 {participants.map((participant) => {
                     const selected =
-                        isParticipantSelected(participant.id);
+                        isParticipantSelected(
+                            participant.id
+                        );
 
                     return (
                         <button
@@ -109,14 +95,14 @@ export default function ParticipantSelector({
                             }
                             aria-pressed={selected}
                             className={`flex items-center gap-2 p-2.5 rounded-xl transition-all text-left cursor-pointer border ${selected
-                                ? "border-primary bg-primary/10 shadow-xs"
-                                : "border-slate-200 bg-white hover:bg-slate-50"
+                                    ? "border-primary bg-primary/10 shadow-xs"
+                                    : "border-slate-200 bg-white hover:bg-slate-50"
                                 }`}
                         >
                             <div
                                 className={`w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${selected
-                                    ? "bg-primary text-white"
-                                    : "bg-slate-200 text-slate-600"
+                                        ? "bg-primary text-white"
+                                        : "bg-slate-200 text-slate-600"
                                     }`}
                             >
                                 {participant.name
@@ -126,8 +112,8 @@ export default function ParticipantSelector({
 
                             <span
                                 className={`text-xs font-semibold truncate flex-1 ${selected
-                                    ? "text-on-surface"
-                                    : "text-slate-600"
+                                        ? "text-on-surface"
+                                        : "text-slate-600"
                                     }`}
                             >
                                 {participant.name}

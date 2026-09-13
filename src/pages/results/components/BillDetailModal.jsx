@@ -1,6 +1,6 @@
 import Modal from "../../../components/Modal";
 import { formatIDR, capitalizeWords } from "../../../utils/formatter";
-import { calculateBillTotal } from "../../../utils/calculations";
+import { calculateBillTotal, areAllParticipantsAssigned } from "../../../utils/calculations";
 
 export default function BillDetailModal({ isOpen, onClose, bill, participants = [] }) {
     if (!bill) return null;
@@ -49,7 +49,7 @@ export default function BillDetailModal({ isOpen, onClose, bill, participants = 
 
                     <div className="flex flex-col bg-surface-container-low/50 rounded-xl border border-outline-variant/30 divide-y divide-outline-variant/20 px-3">
                         {(bill.items || []).map((item) => {
-                            const isAll = item.assignedParticipantIds.includes('all') || item.assignedParticipantIds.length === participants.length;
+                            const isAssignedToAll = areAllParticipantsAssigned(item.assignedParticipantIds, participants);
 
                             return (
                                 <div key={item.id} className="py-2.5 flex flex-col gap-1.5">
@@ -69,16 +69,21 @@ export default function BillDetailModal({ isOpen, onClose, bill, participants = 
 
                                     <div className="flex items-center gap-1 flex-wrap">
                                         <span className="text-[10px] text-slate-400">Untuk:</span>
-                                        {isAll ? (
+                                        {isAssignedToAll ? (
                                             <span className="text-[10px] bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded font-medium">
                                                 Semua Orang
                                             </span>
                                         ) : (
-                                            item.assignedParticipantIds.map((pId) => {
-                                                const pName = participants.find((p) => p.id === pId)?.name;
+                                            item.assignedParticipantIds.map((participantId) => {
+                                                const participant = participants.find((participant) => participant.id === participantId);
+
+                                                if (!participant) {
+                                                    return null;
+                                                }
+
                                                 return (
-                                                    <span key={pId} className="text-[10px] bg-surface-container-high text-on-surface px-1.5 py-0.5 rounded font-medium">
-                                                        {pName}
+                                                    <span key={participant.id} className="text-[10px] bg-surface-container-high text-on-surface px-1.5 py-0.5 rounded font-medium">
+                                                        {participant.name}
                                                     </span>
                                                 );
                                             })

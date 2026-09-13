@@ -1,4 +1,5 @@
 import { formatIDR, capitalizeWords } from "../../../utils/formatter";
+import { areAllParticipantsAssigned } from "../../../utils/calculations";
 
 export default function BillLineItem({
     item,
@@ -6,6 +7,8 @@ export default function BillLineItem({
     onEdit,
     onDelete,
 }) {
+    const isAssignedToAll = areAllParticipantsAssigned(item.assignedParticipantIds, participants);
+
     return (
         <div className="flex flex-col py-3 gap-2">
             <div className="flex justify-between items-center gap-4">
@@ -54,7 +57,7 @@ export default function BillLineItem({
                     Dipesan:
                 </span>
 
-                {item.assignedParticipantIds.includes('all') || item.assignedParticipantIds.length === participants.length ? (
+                {isAssignedToAll ? (
                     <div className="flex items-center gap-1 bg-secondary-container text-on-secondary-container px-2 py-1 rounded-lg text-xs font-semibold">
                         <span className="material-symbols-outlined text-[14px]">
                             groups

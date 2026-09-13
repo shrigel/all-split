@@ -18,24 +18,43 @@ export function calculateSessionTotal(bills) {
     return (bills || []).reduce((sum, bill) => sum + calculateBillTotal(bill), 0);
 }
 
+export function areAllParticipantsAssigned(
+    assignedParticipantIds,
+    participants
+) {
+    if (participants.length === 0) {
+        return false;
+    }
+
+    const assignedIds = new Set(
+        assignedParticipantIds || []
+    );
+
+    return participants.every(
+        (participant) =>
+            assignedIds.has(participant.id)
+    );
+}
+
 export function calculateBilledParticipantCount(
     items,
     participants
 ) {
+    const validParticipantIds = new Set(
+        participants.map(
+            (participant) => participant.id
+        )
+    );
+
     const billedParticipantIds = new Set();
 
     items.forEach((item) => {
-        if (item.assignedParticipantIds.includes('all')) {
-            participants.forEach((participant) => {
-                billedParticipantIds.add(participant.id);
+        (item.assignedParticipantIds || [])
+            .forEach((participantId) => {
+                if (validParticipantIds.has(participantId)) {
+                    billedParticipantIds.add(participantId);
+                }
             });
-
-            return;
-        }
-
-        item.assignedParticipantIds.forEach((participantId) => {
-            billedParticipantIds.add(participantId);
-        });
     });
 
     return billedParticipantIds.size;
@@ -67,21 +86,19 @@ export function calculateParticipantBalances(participants, bills) {
         (bill.items || []).forEach((item) => {
             const itemTotal = (Number(item.unitPrice) || 0) * (Number(item.quantity) || 1);
 
-            const isAll = item.assignedParticipantIds.includes('all');
+            const targetIds = [...new Set(item.assignedParticipantIds || [])]
+                .filter((participantId) => personItemSubtotals[participantId] !== undefined);
 
-            const targetIds = isAll
-                ? participants.map((p) => p.id)
-                : item.assignedParticipantIds;
-
-            if (targetIds.length > 0) {
-                const perPersonItem = itemTotal / targetIds.length;
-
-                targetIds.forEach((id) => {
-                    if (personItemSubtotals[id] !== undefined) {
-                        personItemSubtotals[id] += perPersonItem;
-                    }
-                });
+            if (targetIds.length === 0) {
+                return;
             }
+
+            const perPersonItem =
+                itemTotal / targetIds.length;
+
+            targetIds.forEach((participantId) => {
+                personItemSubtotals[participantId] += perPersonItem;
+            });
         });
 
         const billItemsSubtotal = Object.values(personItemSubtotals).reduce((a, b) => a + b, 0);

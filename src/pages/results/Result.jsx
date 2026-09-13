@@ -268,12 +268,14 @@ export default function Result({ savedSessions, onBackToHome }) {
 
                 <div className="flex flex-col px-4 bg-white rounded-xl border border-outline-variant/40 divide-y divide-outline-variant/40">
                     {settlements.length === 0 ? (
-                        <p className="text-sm text-center">
-                            Semua tagihan sudah lunas! Nggak perlu bayar patungan lagi.
-                        </p>
+                        <div className="flex items-center justify-center py-4">
+                            <p className="text-sm text-center">
+                                Semua tagihan sudah lunas! Nggak perlu bayar patungan lagi.
+                            </p>
+                        </div>
                     ) : (
                         settlements.map((transfer, index) => (
-                            <div key={index} className="flex items-center justify-between py-3">
+                            <div key={index} className="flex items-center justify-between py-4">
                                 <div className="flex items-center gap-2.5">
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-7 h-7 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center text-[12px] font-medium">
