@@ -2,7 +2,7 @@ import { AVATAR_PALETTES } from "../../../constants/avatarPalettes";
 
 export default function ParticipantList({
     participants,
-    onRemoveParticipant
+    onRequestRemoveParticipant
 }) {
     return (
         <section className="flex flex-col">
@@ -32,7 +32,7 @@ export default function ParticipantList({
                                     type="button"
                                     aria-label={`Hapus ${participant.name} dari daftar peserta`}
                                     title={`Hapus ${participant.name}`}
-                                    onClick={() => onRemoveParticipant(participant.id)}
+                                    onClick={() => onRequestRemoveParticipant(participant)}
                                     className="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-rose-500 transition-all"
                                 >
                                     <span

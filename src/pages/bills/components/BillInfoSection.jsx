@@ -14,6 +14,7 @@ export default function BillInfoSection({
                 label="Nama Tagihan / Pengeluaran"
                 name="billName"
                 placeholder="cth. Restoran Kalcer atau Kafe Estetik"
+                autoComplete="off"
                 value={billName}
                 onChange={(e) => onBillNameChange(e.target.value)}
                 icon="receipt_long"

@@ -23,6 +23,7 @@ function App() {
 		discardSession,
 		addParticipant,
 		removeParticipant,
+		checkParticipantUsage,
 		saveBill,
 		deleteBill,
 		finalizeSession,
@@ -146,6 +147,7 @@ function App() {
 										participants={currentSession.participants}
 										onAddParticipant={addParticipant}
 										onRemoveParticipant={removeParticipant}
+										getParticipantUsage={checkParticipantUsage}
 										onDirtyChange={setIsFormDirty}
 										onNext={() => navigate('/bills')}
 										onBack={handleGoHome}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getParticipantUsage } from "../utils/sessionRules";
 import {
     INITIAL_SESSION,
     loadCurrentSession,
@@ -46,12 +47,25 @@ export function useSessionManager() {
     };
 
     const removeParticipant = (id) => {
-        setCurrentSession((prev) => ({
-            ...prev,
-            participants: prev.participants.filter(
-                (p) => p.id !== id
-            )
-        }));
+        setCurrentSession((prev) => {
+            const usage = getParticipantUsage(prev, id);
+
+            if (usage.isUsed) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                participants: prev.participants.filter((p) => p.id !== id)
+            };
+        });
+    };
+
+    const checkParticipantUsage = (participantId) => {
+        return getParticipantUsage(
+            currentSession,
+            participantId
+        );
     };
 
     const saveBill = (bill) => {
@@ -125,6 +139,7 @@ export function useSessionManager() {
         discardSession,
         addParticipant,
         removeParticipant,
+        checkParticipantUsage,
         saveBill,
         deleteBill,
         clearBills,

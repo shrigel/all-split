@@ -4,12 +4,14 @@ import Button from "../../components/Button";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import NewParticipantForm from "./components/NewParticipantForm";
 import ParticipantList from "./components/ParticipantList";
+import BlockedRemovalModal from "./components/BlockedRemovalModal";
 
 export default function Participants({
     sessionName,
     participants,
     onAddParticipant,
     onRemoveParticipant,
+    getParticipantUsage,
     onDirtyChange,
     onNext,
     onBack,
@@ -19,6 +21,8 @@ export default function Participants({
 
     const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
     const [pendingNavigation, setPendingNavigation] = useState(null);
+    const [isBlockedRemovalModalOpen, setIsBlockedRemovalModalOpen] = useState(false);
+    const [blockedRemoval, setBlockedRemoval] = useState(null);
     const isReady = participants.length >= 2;
     const hasUnsavedDraft = participantName.trim() !== '';
 
@@ -30,6 +34,11 @@ export default function Participants({
         }
 
         navigationAction();
+    };
+
+    const handleCloseNavigationModal = () => {
+        setIsNavigationModalOpen(false);
+        setPendingNavigation(null);
     };
 
     const handleConfirmNavigation = () => {
@@ -66,6 +75,23 @@ export default function Participants({
     const handleParticipantNameChange = (e) => {
         setParticipantName(sanitizeAlphanumeric(e.target.value));
         if (errorMessage) setErrorMessage('');
+    };
+
+    const handleRequestRemoveParticipant = (participant) => {
+        const usage = getParticipantUsage(participant.id);
+
+        if (usage.isUsed) {
+            setIsBlockedRemovalModalOpen(true);
+            setBlockedRemoval({ participant, usage });
+            return;
+        }
+
+        onRemoveParticipant(participant.id);
+    }
+
+    const handleCloseBlockedRemovalModal = () => {
+        setIsBlockedRemovalModalOpen(false);
+        setBlockedRemoval(null);
     };
 
     const handleSubmitParticipant = (e) => {
@@ -126,7 +152,7 @@ export default function Participants({
 
                 <ParticipantList
                     participants={participants}
-                    onRemoveParticipant={onRemoveParticipant}
+                    onRequestRemoveParticipant={(participant) => handleRequestRemoveParticipant(participant)}
                 />
 
                 <Button
@@ -138,10 +164,17 @@ export default function Participants({
                 </Button>
             </main>
 
+            <BlockedRemovalModal
+                isOpen={isBlockedRemovalModalOpen}
+                onClose={handleCloseBlockedRemovalModal}
+                participant={blockedRemoval?.participant}
+                usage={blockedRemoval?.usage}
+            />
+
             <ConfirmationModal
                 btnLabel="Tinggalkan"
                 isOpen={isNavigationModalOpen}
-                onClose={() => setIsNavigationModalOpen(false)}
+                onClose={handleCloseNavigationModal}
                 onConfirm={handleConfirmNavigation}
                 confirmationMessage="Nama peserta yang belum ditambahkan akan hilang. Apakah Anda yakin ingin meninggalkan halaman ini?"
             />
