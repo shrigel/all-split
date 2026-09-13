@@ -26,23 +26,11 @@ export default function Modal({
     return (
         <div
             onClick={onClose}
-            className="
-                fixed inset-0 z-50
-                flex items-center justify-center
-                px-4
-                bg-black/40 backdrop-blur-xs
-                animate-modal-backdrop
-            "
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-xs animate-modal-backdrop"
         >
             <div
                 onClick={(event) => event.stopPropagation()}
-                className="
-                    w-full max-w-md
-                    rounded-2xl
-                    bg-white
-                    shadow-xl
-                    animate-modal-card
-                "
+                className="w-full max-w-md rounded-2xl bg-white shadow-xl animate-modal-card"
             >
                 {children}
             </div>

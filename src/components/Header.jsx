@@ -1,4 +1,4 @@
-import { useLocation, matchPath, Link } from "react-router-dom";
+import { useLocation, matchPath } from "react-router-dom";
 import Logo from "./Logo";
 
 export default function Header({ onLogoClick }) {
