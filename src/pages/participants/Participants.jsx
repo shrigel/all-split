@@ -17,16 +17,29 @@ export default function Participants({
     const [participantName, setParticipantName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
+    const [pendingNavigation, setPendingNavigation] = useState(null);
     const isReady = participants.length >= 2;
     const hasUnsavedDraft = participantName.trim() !== '';
 
-    const handleBack = () => {
+    const handleNavigation = (navigationAction) => {
         if (hasUnsavedDraft) {
-            setIsBackModalOpen(true);
-        } else {
-            onBack();
+            setPendingNavigation(() => navigationAction);
+            setIsNavigationModalOpen(true);
+            return;
         }
+
+        navigationAction();
+    };
+
+    const handleConfirmNavigation = () => {
+        setIsNavigationModalOpen(false);
+
+        if (pendingNavigation) {
+            pendingNavigation();
+        }
+
+        setPendingNavigation(null);
     };
 
     useEffect(() => {
@@ -86,7 +99,7 @@ export default function Participants({
                 <div>
                     <button
                         type="button"
-                        onClick={handleBack}
+                        onClick={() => handleNavigation(onBack)}
                         className="flex items-center gap-2 text-primary bg-surface-container/75 px-2 py-1 rounded-full border border-outline-variant/40 hover:bg-surface-container-high transition-all"
                     >
                         <span className="material-symbols-outlined text-[16px]">
@@ -118,7 +131,7 @@ export default function Participants({
 
                 <Button
                     disabled={!isReady}
-                    onClick={onNext}
+                    onClick={() => handleNavigation(onNext)}
                     iconEnd="arrow_forward"
                 >
                     Lanjut ke Tagihan
@@ -126,11 +139,11 @@ export default function Participants({
             </main>
 
             <ConfirmationModal
-                btnLabel="Kembali"
-                isOpen={isBackModalOpen}
-                onClose={() => setIsBackModalOpen(false)}
-                onConfirm={onBack}
-                confirmationMessage="Nama peserta yang belum ditambahkan akan hilang. Apakah Anda yakin ingin kembali"
+                btnLabel="Tinggalkan"
+                isOpen={isNavigationModalOpen}
+                onClose={() => setIsNavigationModalOpen(false)}
+                onConfirm={handleConfirmNavigation}
+                confirmationMessage="Nama peserta yang belum ditambahkan akan hilang. Apakah Anda yakin ingin meninggalkan halaman ini?"
             />
         </>
     )
