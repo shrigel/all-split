@@ -9,7 +9,10 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=@all-split/web",
     "build:web": "npm run build --workspace=@all-split/web",
-    "lint:web": "npm run lint --workspace=@all-split/web"
+    "lint:web": "npm run lint --workspace=@all-split/web",
+    "dev:api": "npm run start:dev --workspace=@all-split/api",
+    "build:api": "npm run build --workspace=@all-split/api",
+    "lint:api": "npm run lint --workspace=@all-split/api"
   },
   "repository": {
     "type": "git",
