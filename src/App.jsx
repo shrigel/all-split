@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Route,
 	Routes,
 	Navigate,
-	useNavigate
+	useNavigate,
+	useLocation
 } from "react-router-dom";
 import { useSessionManager } from "./hooks/useSessionManager";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,6 +22,7 @@ function App() {
 		savedSessions,
 		startSession,
 		discardSession,
+		updateLastVisitedPage,
 		addParticipant,
 		removeParticipant,
 		checkParticipantUsage,
@@ -30,9 +32,52 @@ function App() {
 	} = useSessionManager();
 
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [isFormDirty, setIsFormDirty] = useState(false);
 	const [isBackConfModalOpen, setIsBackConfModalOpen] = useState(false);
+	const [pendingFinalizationId, setPendingFinalizationId] = useState(null);
+
+	useEffect(() => {
+		const hasActiveSession = Boolean(currentSession.name.trim());
+
+		if (!hasActiveSession) {
+			return;
+		}
+
+		if (location.pathname === '/participants') {
+			updateLastVisitedPage('participants');
+			return;
+		}
+
+		if (location.pathname.startsWith('/bills')) {
+			updateLastVisitedPage('bills');
+		}
+	}, [
+		location.pathname,
+		currentSession.name,
+		updateLastVisitedPage
+	]);
+
+	useEffect(() => {
+		if (!pendingFinalizationId) {
+			return;
+		}
+
+		const expectedResultPath =
+			`/result/${pendingFinalizationId}`;
+
+		if (location.pathname !== expectedResultPath) {
+			return;
+		}
+
+		discardSession();
+		setPendingFinalizationId(null);
+	}, [
+		pendingFinalizationId,
+		location.pathname,
+		discardSession
+	]);
 
 	const handleStartSession = (name) => {
 		startSession(name);
@@ -41,9 +86,12 @@ function App() {
 	};
 
 	const handleResumeSession = () => {
-		if (currentSession.participants.length >= 2) {
-			navigate('/bills');
+		const lastPage = currentSession.navigation?.lastPage ?? 'participants';
 
+		const canOpenBills = currentSession.participants.length >= 2;
+
+		if (lastPage === 'bills' && canOpenBills) {
+			navigate('/bills');
 			return;
 		}
 
@@ -69,6 +117,8 @@ function App() {
 
 	const handleCalculateSession = () => {
 		const sessionId = finalizeSession();
+
+		setPendingFinalizationId(sessionId);
 
 		navigate(`/result/${sessionId}`);
 	};

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { calculateBillTotal, calculateBilledParticipantCount } from "../../utils/calculations";
 import ItemModal from "./components/item-modal/ItemModal";
 import AdjustmentModal from "./components/AdjustmentModal";
@@ -200,6 +200,10 @@ export default function BillForm({
 
         onSaveBill(bill);
     };
+
+    if (billId && !billToEdit) {
+        return <Navigate to="/bills" replace />;
+    }
 
     return (
         <>

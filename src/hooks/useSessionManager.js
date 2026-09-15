@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getParticipantUsage } from "../utils/sessionRules";
 import {
     INITIAL_SESSION,
@@ -27,9 +27,29 @@ export function useSessionManager() {
         });
     };
 
-    const discardSession = () => {
+    const discardSession = useCallback(() => {
         setCurrentSession(INITIAL_SESSION);
-    };
+    }, []);
+
+    const updateLastVisitedPage = useCallback((page) => {
+        if (page !== 'participants' && page !== 'bills') {
+            return;
+        }
+
+        setCurrentSession((prev) => {
+            if (prev.navigation?.lastPage === page) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                navigation: {
+                    ...prev.navigation,
+                    lastPage: page
+                }
+            };
+        });
+    }, []);
 
     const addParticipant = (name) => {
         const newParticipant = {
@@ -104,19 +124,14 @@ export function useSessionManager() {
         }));
     };
 
-    const clearBills = () => {
-        setCurrentSession((prev) => ({
-            ...prev,
-            bills: []
-        }));
-    };
-
     const finalizeSession = () => {
         const now = Date.now();
         const sessionId = `session-${now}`;
 
         const sessionToSave = {
-            ...currentSession,
+            name: currentSession.name,
+            participants: currentSession.participants,
+            bills: currentSession.bills,
             id: sessionId,
             createdAt: now,
             expiresAt: now + (7 * 24 * 60 * 60 * 1000)
@@ -127,8 +142,6 @@ export function useSessionManager() {
             ...prev
         ]);
 
-        setCurrentSession(INITIAL_SESSION);
-
         return sessionId;
     };
 
@@ -137,12 +150,12 @@ export function useSessionManager() {
         savedSessions,
         startSession,
         discardSession,
+        updateLastVisitedPage,
         addParticipant,
         removeParticipant,
         checkParticipantUsage,
         saveBill,
         deleteBill,
-        clearBills,
         finalizeSession,
     };
 }
