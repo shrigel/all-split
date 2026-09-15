@@ -4,12 +4,14 @@ import Button from "../../components/Button";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import NewParticipantForm from "./components/NewParticipantForm";
 import ParticipantList from "./components/ParticipantList";
+import BlockedRemovalModal from "./components/BlockedRemovalModal";
 
 export default function Participants({
     sessionName,
     participants,
     onAddParticipant,
     onRemoveParticipant,
+    getParticipantUsage,
     onDirtyChange,
     onNext,
     onBack,
@@ -17,20 +19,48 @@ export default function Participants({
     const [participantName, setParticipantName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
+    const [pendingNavigation, setPendingNavigation] = useState(null);
+    const [isBlockedRemovalModalOpen, setIsBlockedRemovalModalOpen] = useState(false);
+    const [blockedRemoval, setBlockedRemoval] = useState(null);
     const isReady = participants.length >= 2;
-    const hasUnsavedData = participants.length > 0 || participantName.trim() !== '';
+    const hasUnsavedDraft = participantName.trim() !== '';
+
+    const handleNavigation = (navigationAction) => {
+        if (hasUnsavedDraft) {
+            setPendingNavigation(() => navigationAction);
+            setIsNavigationModalOpen(true);
+            return;
+        }
+
+        navigationAction();
+    };
+
+    const handleCloseNavigationModal = () => {
+        setIsNavigationModalOpen(false);
+        setPendingNavigation(null);
+    };
+
+    const handleConfirmNavigation = () => {
+        setIsNavigationModalOpen(false);
+
+        if (pendingNavigation) {
+            pendingNavigation();
+        }
+
+        setPendingNavigation(null);
+    };
 
     useEffect(() => {
         const handleBeforeUnload = (e) => {
-            if (hasUnsavedData) {
+            if (hasUnsavedDraft) {
                 e.preventDefault();
                 e.returnValue = '';
             }
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [participants, participantName]);
+    }, [hasUnsavedDraft]);
 
     useEffect(() => {
         if (onDirtyChange) {
@@ -45,6 +75,23 @@ export default function Participants({
     const handleParticipantNameChange = (e) => {
         setParticipantName(sanitizeAlphanumeric(e.target.value));
         if (errorMessage) setErrorMessage('');
+    };
+
+    const handleRequestRemoveParticipant = (participant) => {
+        const usage = getParticipantUsage(participant.id);
+
+        if (usage.isUsed) {
+            setIsBlockedRemovalModalOpen(true);
+            setBlockedRemoval({ participant, usage });
+            return;
+        }
+
+        onRemoveParticipant(participant.id);
+    }
+
+    const handleCloseBlockedRemovalModal = () => {
+        setIsBlockedRemovalModalOpen(false);
+        setBlockedRemoval(null);
     };
 
     const handleSubmitParticipant = (e) => {
@@ -78,7 +125,7 @@ export default function Participants({
                 <div>
                     <button
                         type="button"
-                        onClick={() => { hasUnsavedData ? setIsBackModalOpen(true) : onBack() }}
+                        onClick={() => handleNavigation(onBack)}
                         className="flex items-center gap-2 text-primary bg-surface-container/75 px-2 py-1 rounded-full border border-outline-variant/40 hover:bg-surface-container-high transition-all"
                     >
                         <span className="material-symbols-outlined text-[16px]">
@@ -105,24 +152,31 @@ export default function Participants({
 
                 <ParticipantList
                     participants={participants}
-                    onRemoveParticipant={onRemoveParticipant}
+                    onRequestRemoveParticipant={(participant) => handleRequestRemoveParticipant(participant)}
                 />
 
                 <Button
                     disabled={!isReady}
-                    onClick={onNext}
+                    onClick={() => handleNavigation(onNext)}
                     iconEnd="arrow_forward"
                 >
                     Lanjut ke Tagihan
                 </Button>
             </main>
 
+            <BlockedRemovalModal
+                isOpen={isBlockedRemovalModalOpen}
+                onClose={handleCloseBlockedRemovalModal}
+                participant={blockedRemoval?.participant}
+                usage={blockedRemoval?.usage}
+            />
+
             <ConfirmationModal
-                btnLabel="Kembali"
-                isOpen={isBackModalOpen}
-                onClose={() => setIsBackModalOpen(false)}
-                onConfirm={onBack}
-                confirmationMessage="Apakah Anda yakin ingin kembali? Daftar peserta yang telah dimasukkan akan hilang."
+                btnLabel="Tinggalkan"
+                isOpen={isNavigationModalOpen}
+                onClose={handleCloseNavigationModal}
+                onConfirm={handleConfirmNavigation}
+                confirmationMessage="Nama peserta yang belum ditambahkan akan hilang. Apakah Anda yakin ingin meninggalkan halaman ini?"
             />
         </>
     )

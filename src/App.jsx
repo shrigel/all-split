@@ -23,9 +23,9 @@ function App() {
 		discardSession,
 		addParticipant,
 		removeParticipant,
+		checkParticipantUsage,
 		saveBill,
 		deleteBill,
-		clearBills,
 		finalizeSession,
 	} = useSessionManager();
 
@@ -55,17 +55,7 @@ function App() {
 		navigate('/');
 	};
 
-	const handleDiscardSessionAndGoHome = () => {
-		discardSession();
-
-		setIsFormDirty(false);
-
-		navigate('/');
-	};
-
-	const handleClearBillsAndBack = () => {
-		clearBills();
-
+	const handleBackToParticipants = () => {
 		navigate('/participants');
 	};
 
@@ -152,20 +142,16 @@ function App() {
 									condition={Boolean(currentSession.name.trim())}
 									redirectTo="/"
 								>
-									<ProtectedRoute
-										condition={currentSession.bills.length === 0}
-										redirectTo="/bills"
-									>
-										<Participants
-											sessionName={currentSession.name}
-											participants={currentSession.participants}
-											onAddParticipant={addParticipant}
-											onRemoveParticipant={removeParticipant}
-											onDirtyChange={setIsFormDirty}
-											onNext={() => navigate('/bills')}
-											onBack={handleDiscardSessionAndGoHome}
-										/>
-									</ProtectedRoute>
+									<Participants
+										sessionName={currentSession.name}
+										participants={currentSession.participants}
+										onAddParticipant={addParticipant}
+										onRemoveParticipant={removeParticipant}
+										getParticipantUsage={checkParticipantUsage}
+										onDirtyChange={setIsFormDirty}
+										onNext={() => navigate('/bills')}
+										onBack={handleGoHome}
+									/>
 								</ProtectedRoute>
 							}
 						/>
@@ -185,7 +171,7 @@ function App() {
 										}
 										onDeleteBill={deleteBill}
 										onCalculateSession={handleCalculateSession}
-										onBack={handleClearBillsAndBack}
+										onBack={handleBackToParticipants}
 									/>
 								</ProtectedRoute>
 							}

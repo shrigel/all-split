@@ -1,15 +1,15 @@
-import Button from "./Button";
-import Modal from "./Modal";
+import Modal from "../../../components/Modal";
+import Button from "../../../components/Button";
 
-export default function ConfirmationModal({
+export default function BlockedRemovalModal({
     isOpen,
-    btnLabel = "Konfirmasi",
-    btnVariant,
     onClose,
-    onConfirm,
-    confirmationMessage
+    participant,
+    usage
 }) {
-    if (!isOpen) return null;
+    if (!isOpen || !participant || !usage) {
+        return null;
+    }
 
     return (
         <Modal
@@ -24,7 +24,7 @@ export default function ConfirmationModal({
 
                     <div className="flex flex-col">
                         <span className="text-md font-bold">
-                            Peringatan
+                            Peserta Tidak Dapat Dihapus
                         </span>
                     </div>
                 </div>
@@ -39,27 +39,33 @@ export default function ConfirmationModal({
                 </button>
             </div>
 
-            <div className="p-4">
-                <p className="text-sm text-on-surface-variant text-center">
-                    {confirmationMessage}
+            <div className="p-4 flex flex-col gap-2">
+                <p className="text-sm text-on-surface-variant">
+                    <span className="font-bold">{participant.name}</span> tidak dapat dihapus karena masuk ke tagihan berikut:
+                </p>
+
+                <ul>
+                    {usage.bills.map((bill) => (
+                        <li key={bill.id}>
+                            <span className="text-sm font-bold">
+                                {bill.name}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+
+                <p className="text-sm text-on-surface-variant">
+                    Ubah atau hapus tagihan tersebut terlebih dahulu sebelum menghapus peserta.
                 </p>
             </div>
 
-            <div className="flex items-center p-4 gap-2 border-t border-outline-variant/40">
+            <div className="flex items-center p-4 border-t border-outline-variant/40">
                 <Button
                     variant="tonal"
                     onClick={onClose}
                     className="flex-1"
                 >
-                    Batal
-                </Button>
-
-                <Button
-                    variant={btnVariant}
-                    onClick={onConfirm}
-                    className="flex-1"
-                >
-                    {btnLabel}
+                    Tutup
                 </Button>
             </div>
         </Modal>
