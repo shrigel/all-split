@@ -27,9 +27,9 @@ export function useSessionManager() {
         });
     };
 
-    const discardSession = () => {
+    const discardSession = useCallback(() => {
         setCurrentSession(INITIAL_SESSION);
-    };
+    }, []);
 
     const updateLastVisitedPage = useCallback((page) => {
         if (page !== 'participants' && page !== 'bills') {
@@ -124,13 +124,6 @@ export function useSessionManager() {
         }));
     };
 
-    const clearBills = () => {
-        setCurrentSession((prev) => ({
-            ...prev,
-            bills: []
-        }));
-    };
-
     const finalizeSession = () => {
         const now = Date.now();
         const sessionId = `session-${now}`;
@@ -149,8 +142,6 @@ export function useSessionManager() {
             ...prev
         ]);
 
-        setCurrentSession(INITIAL_SESSION);
-
         return sessionId;
     };
 
@@ -165,7 +156,6 @@ export function useSessionManager() {
         checkParticipantUsage,
         saveBill,
         deleteBill,
-        clearBills,
         finalizeSession,
     };
 }

@@ -36,6 +36,7 @@ function App() {
 
 	const [isFormDirty, setIsFormDirty] = useState(false);
 	const [isBackConfModalOpen, setIsBackConfModalOpen] = useState(false);
+	const [pendingFinalizationId, setPendingFinalizationId] = useState(null);
 
 	useEffect(() => {
 		const hasActiveSession = Boolean(currentSession.name.trim());
@@ -56,6 +57,26 @@ function App() {
 		location.pathname,
 		currentSession.name,
 		updateLastVisitedPage
+	]);
+
+	useEffect(() => {
+		if (!pendingFinalizationId) {
+			return;
+		}
+
+		const expectedResultPath =
+			`/result/${pendingFinalizationId}`;
+
+		if (location.pathname !== expectedResultPath) {
+			return;
+		}
+
+		discardSession();
+		setPendingFinalizationId(null);
+	}, [
+		pendingFinalizationId,
+		location.pathname,
+		discardSession
 	]);
 
 	const handleStartSession = (name) => {
@@ -96,6 +117,8 @@ function App() {
 
 	const handleCalculateSession = () => {
 		const sessionId = finalizeSession();
+
+		setPendingFinalizationId(sessionId);
 
 		navigate(`/result/${sessionId}`);
 	};
