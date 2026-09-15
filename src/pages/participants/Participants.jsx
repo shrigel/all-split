@@ -5,6 +5,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import NewParticipantForm from "./components/NewParticipantForm";
 import ParticipantList from "./components/ParticipantList";
 import BlockedRemovalModal from "./components/BlockedRemovalModal";
+import SessionBottomNav from "../../components/SessionBottomNav";
 
 export default function Participants({
     sessionName,
@@ -121,7 +122,7 @@ export default function Participants({
 
     return (
         <>
-            <main className="flex-1 flex flex-col gap-6 w-full max-w-app mx-auto px-4 py-6">
+            <main className="flex-1 flex flex-col gap-6 w-full max-w-app mx-auto px-4 py-6 pb-24">
                 <div>
                     <button
                         type="button"
@@ -163,6 +164,12 @@ export default function Participants({
                     Lanjut ke Tagihan
                 </Button>
             </main>
+
+            <SessionBottomNav
+                activePage="participants"
+                canOpenBills={isReady}
+                onBillsClick={() => handleNavigation(onNext)}
+            />
 
             <BlockedRemovalModal
                 isOpen={isBlockedRemovalModalOpen}
