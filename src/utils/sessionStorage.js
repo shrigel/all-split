@@ -4,12 +4,15 @@ export const STORAGE_KEYS = {
     DATA_VERSION: 'allsplit_data_version',
 };
 
-export const CURRENT_DATA_VERSION = 3;
+export const CURRENT_DATA_VERSION = 4;
 
 export const INITIAL_SESSION = {
     name: '',
     participants: [],
     bills: [],
+    navigation: {
+        lastPage: 'participants'
+    }
 };
 
 export const saveToStorage = (key, data) => {
@@ -91,6 +94,19 @@ const migrateSessionV2ToV3 = (session) => {
     };
 };
 
+const migrateCurrentSessionV3ToV4 = (session) => {
+    if (!session) {
+        return session;
+    }
+
+    return {
+        ...session,
+        navigation: {
+            lastPage: session.navigation?.lastPage === 'bills' ? 'bills' : 'participants'
+        }
+    };
+};
+
 const migrateStoredData = (currentSession, savedSessions, fromVersion) => {
     let migratedCurrentSession = currentSession;
     let migratedSavedSessions = savedSessions;
@@ -110,6 +126,12 @@ const migrateStoredData = (currentSession, savedSessions, fromVersion) => {
         migratedSavedSessions = migratedSavedSessions.map((session) => migrateSessionV2ToV3(session));
 
         version = 3;
+    }
+
+    if (version < 4) {
+        migratedCurrentSession = migrateCurrentSessionV3ToV4(migratedCurrentSession);
+
+        version = 4;
     }
 
     return {
