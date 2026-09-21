@@ -1,4 +1,5 @@
 import { formatIDR } from "../../../../utils/formatter";
+import { areAllParticipantsAssigned } from "../../../../domain/bills/participantAssignments";
 
 export default function ParticipantSelector({
     participants,
@@ -12,11 +13,7 @@ export default function ParticipantSelector({
 
     const selectedIdSet = new Set(selectedIds);
 
-    const isAll =
-        participants.length > 0 &&
-        participantIds.every((id) =>
-            selectedIdSet.has(id)
-        );
+    const isAll = areAllParticipantsAssigned(selectedIds, participants);
 
     const selectedCount = participants.filter(
         (participant) =>
