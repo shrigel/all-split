@@ -1,5 +1,5 @@
 import { formatIDR } from "../../../utils/formatter";
-import { calculateSessionTotal } from "../../../utils/calculations";
+import { calculateSessionTotal } from "../../../domain/calculation";
 import { AVATAR_PALETTES } from "../../../constants/avatarPalettes";
 
 export default function SessionOverview({

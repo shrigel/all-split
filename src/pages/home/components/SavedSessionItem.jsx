@@ -1,5 +1,5 @@
 import { formatIDR, formatRelativeTime } from "../../../utils/formatter";
-import { calculateSessionTotal } from "../../../utils/calculations";
+import { calculateSessionTotal } from "../../../domain/calculation";
 
 export default function SavedSessionItem({
     session,

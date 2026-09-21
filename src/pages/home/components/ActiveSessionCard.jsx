@@ -1,5 +1,5 @@
 import Button from "../../../components/Button"
-import { calculateSessionTotal } from "../../../utils/calculations"
+import { calculateSessionTotal } from "../../../domain/calculation"
 import { formatIDR } from "../../../utils/formatter"
 
 export default function ActiveSessionCard({

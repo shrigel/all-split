@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { calculateSessionTotal, calculateParticipantBalances, calculateSettlements } from "../../utils/calculations";
+import { calculateSessionTotal, calculateParticipantBalances, calculateSettlements } from "../../domain/calculation";
 import { formatDate } from "../../utils/formatter";
 import { generateSessionShareText } from "../../utils/share";
 import BillDetailModal from "./components/BillDetailModal";

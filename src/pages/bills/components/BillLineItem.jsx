@@ -1,5 +1,5 @@
 import { formatIDR, capitalizeWords } from "../../../utils/formatter";
-import { areAllParticipantsAssigned } from "../../../utils/calculations";
+import { areAllParticipantsAssigned } from "../../../domain/bills/participantAssignments";
 
 export default function BillLineItem({
     item,

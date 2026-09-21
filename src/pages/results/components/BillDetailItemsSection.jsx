@@ -1,4 +1,4 @@
-import { areAllParticipantsAssigned } from "../../../utils/calculations";
+import { areAllParticipantsAssigned } from "../../../domain/bills/participantAssignments";
 import { capitalizeWords, formatIDR } from "../../../utils/formatter";
 
 export default function BillDetailItemsSection({

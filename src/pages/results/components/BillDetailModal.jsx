@@ -1,6 +1,6 @@
 import Modal from "../../../components/Modal";
 import { formatIDR } from "../../../utils/formatter";
-import { calculateBillTotal } from "../../../utils/calculations";
+import { calculateBillTotal } from "../../../domain/calculation";
 import Button from "../../../components/Button";
 import BillDetailItemsSection from "./BillDetailItemsSection";
 import BillDetailAdjustmentsSection from "./BillDetailAdjustmentsSection";

@@ -1,5 +1,5 @@
 import { formatIDR } from "../../../utils/formatter";
-import { calculateBillTotal } from "../../../utils/calculations";
+import { calculateBillTotal } from "../../../domain/calculation";
 
 export default function ResultBillsSection({
     bills,
