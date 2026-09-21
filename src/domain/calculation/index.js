@@ -10,3 +10,8 @@ export {
 export {
     calculateSettlements
 } from "./settlements";
+
+export {
+    allocateEqual,
+    allocateProportional
+} from "./allocation";
