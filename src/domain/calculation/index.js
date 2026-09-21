@@ -23,3 +23,7 @@ export {
 export {
     calculateAdjustmentShares
 } from "./adjustmentShares";
+
+export {
+    calculateParticipantResponsibilities
+} from "./participantResponsibilities";

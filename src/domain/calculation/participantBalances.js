@@ -1,6 +1,5 @@
 import { calculateBillTotal } from "./billTotals";
-import { calculateItemShares } from "./itemShares";
-import { calculateAdjustmentShares } from "./adjustmentShares";
+import { calculateParticipantResponsibilities } from "./participantResponsibilities";
 
 export function calculateParticipantBalances(participants, bills) {
     const balances = {};
@@ -15,55 +14,26 @@ export function calculateParticipantBalances(participants, bills) {
         };
     });
 
+    const responsibilities = calculateParticipantResponsibilities(participants, bills);
+
+    responsibilities.forEach((participant) => {
+        balances[participant.id].totalResponsibility = participant.totalResponsibility;
+    });
+
     (bills || []).forEach((bill) => {
         const billTotal = calculateBillTotal(bill);
 
         if (balances[bill.payerId]) {
             balances[bill.payerId].totalPaid += billTotal;
         }
-
-        const personItemSubtotals = {};
-        participants.forEach((p) => { personItemSubtotals[p.id] = 0; });
-
-        const participantIds = participants.map((participant) => participant.id);
-
-        (bill.items || []).forEach((item) => {
-            const itemShares = calculateItemShares(
-                item,
-                participantIds
-            );
-
-            itemShares.forEach(
-                ({ participantId, amount }) => {
-                    personItemSubtotals[participantId] += amount;
-                }
-            );
-        });
-
-        const personAdjTotals = {};
-
-        participants.forEach((p) => { personAdjTotals[p.id] = 0; });
-
-        (bill.adjustments || []).forEach(
-            (adjustment) => {
-                const adjustmentShares = calculateAdjustmentShares(adjustment, participantIds, personItemSubtotals);
-
-                adjustmentShares.forEach(
-                    ({ participantId, amount }) => {
-                        personAdjTotals[participantId] += amount;
-                    }
-                );
-            }
-        );
-
-        participants.forEach((p) => {
-            const personBillTotal = personItemSubtotals[p.id] + personAdjTotals[p.id];
-            balances[p.id].totalResponsibility += Math.round(personBillTotal);
-        });
     });
 
-    return Object.values(balances).map((p) => ({
-        ...p,
-        balance: p.totalPaid - p.totalResponsibility
-    }));
+    return participants.map((participant) => {
+        const result = balances[participant.id];
+
+        return {
+            ...result,
+            balance: result.totalPaid - result.totalResponsibility
+        };
+    });
 }
