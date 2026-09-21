@@ -15,3 +15,7 @@ export {
     allocateEqual,
     allocateProportional
 } from "./allocation";
+
+export {
+    calculateItemShares
+} from "./itemShares";

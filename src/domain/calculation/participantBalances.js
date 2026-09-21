@@ -1,4 +1,5 @@
 import { calculateBillTotal } from "./billTotals";
+import { calculateItemShares } from "./itemShares";
 
 export function calculateParticipantBalances(participants, bills) {
     const balances = {};
@@ -23,22 +24,19 @@ export function calculateParticipantBalances(participants, bills) {
         const personItemSubtotals = {};
         participants.forEach((p) => { personItemSubtotals[p.id] = 0; });
 
+        const participantIds = participants.map((participant) => participant.id);
+
         (bill.items || []).forEach((item) => {
-            const itemTotal = (Number(item.unitPrice) || 0) * (Number(item.quantity) || 1);
+            const itemShares = calculateItemShares(
+                item,
+                participantIds
+            );
 
-            const targetIds = [...new Set(item.assignedParticipantIds || [])]
-                .filter((participantId) => personItemSubtotals[participantId] !== undefined);
-
-            if (targetIds.length === 0) {
-                return;
-            }
-
-            const perPersonItem =
-                itemTotal / targetIds.length;
-
-            targetIds.forEach((participantId) => {
-                personItemSubtotals[participantId] += perPersonItem;
-            });
+            itemShares.forEach(
+                ({ participantId, amount }) => {
+                    personItemSubtotals[participantId] += amount;
+                }
+            );
         });
 
         const billItemsSubtotal = Object.values(personItemSubtotals).reduce((a, b) => a + b, 0);
