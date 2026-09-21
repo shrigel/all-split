@@ -19,3 +19,7 @@ export {
 export {
     calculateItemShares
 } from "./itemShares";
+
+export {
+    calculateAdjustmentShares
+} from "./adjustmentShares";

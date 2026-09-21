@@ -1,5 +1,6 @@
 import { calculateBillTotal } from "./billTotals";
 import { calculateItemShares } from "./itemShares";
+import { calculateAdjustmentShares } from "./adjustmentShares";
 
 export function calculateParticipantBalances(participants, bills) {
     const balances = {};
@@ -39,28 +40,21 @@ export function calculateParticipantBalances(participants, bills) {
             );
         });
 
-        const billItemsSubtotal = Object.values(personItemSubtotals).reduce((a, b) => a + b, 0);
-
         const personAdjTotals = {};
 
         participants.forEach((p) => { personAdjTotals[p.id] = 0; });
 
-        (bill.adjustments || []).forEach((adj) => {
-            const rawAmount = Number(adj.amount) || 0;
-            const signedAmount = adj.type === 'discount' ? -rawAmount : rawAmount;
+        (bill.adjustments || []).forEach(
+            (adjustment) => {
+                const adjustmentShares = calculateAdjustmentShares(adjustment, participantIds, personItemSubtotals);
 
-            if (adj.allocationType === 'proportional' && billItemsSubtotal > 0) {
-                participants.forEach((p) => {
-                    const ratio = personItemSubtotals[p.id] / billItemsSubtotal;
-                    personAdjTotals[p.id] += signedAmount * ratio;
-                });
-            } else {
-                const perPersonEqual = signedAmount / participants.length;
-                participants.forEach((p) => {
-                    personAdjTotals[p.id] += perPersonEqual;
-                });
+                adjustmentShares.forEach(
+                    ({ participantId, amount }) => {
+                        personAdjTotals[participantId] += amount;
+                    }
+                );
             }
-        });
+        );
 
         participants.forEach((p) => {
             const personBillTotal = personItemSubtotals[p.id] + personAdjTotals[p.id];
