@@ -23,6 +23,12 @@ export function calculateParticipantBalances(participants, bills) {
     (bills || []).forEach((bill) => {
         const billTotal = calculateBillTotal(bill);
 
+        if (!Number.isSafeInteger(billTotal)) {
+            throw new RangeError(
+                "Bill total must be a safe integer."
+            );
+        }
+
         if (balances[bill.payerId]) {
             balances[bill.payerId].totalPaid += billTotal;
         }
@@ -31,9 +37,17 @@ export function calculateParticipantBalances(participants, bills) {
     return participants.map((participant) => {
         const result = balances[participant.id];
 
+        const balance = result.totalPaid - result.totalResponsibility;
+
+        if (!Number.isSafeInteger(balance)) {
+            throw new RangeError(
+                "Participant balance must be a safe integer."
+            );
+        }
+
         return {
             ...result,
-            balance: result.totalPaid - result.totalResponsibility
+            balance
         };
     });
 }
