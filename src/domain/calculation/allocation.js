@@ -78,6 +78,12 @@ export function allocateProportional(amount, recipients) {
         ({ participantId, weight }, index) => {
             const numerator = amount * weight;
 
+            if (!Number.isSafeInteger(numerator)) {
+                throw new RangeError(
+                    "Allocation calculation exceeds the safe integer range."
+                );
+            }
+
             return {
                 participantId,
                 amount: Math.floor(numerator / totalWeight),
