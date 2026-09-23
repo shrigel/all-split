@@ -1,7 +1,7 @@
+import { calculateItemTotal } from "./itemTotals";
+
 export function calculateBillTotal(bill) {
-    const itemsSubtotal = (bill.items || []).reduce((sum, item) => {
-        return sum + (Number(item.unitPrice) || 0) * (Number(item.quantity) || 1);
-    }, 0);
+    const itemsSubtotal = (bill.items || []).reduce((sum, item) => sum + calculateItemTotal(item), 0);
 
     const totalCharges = (bill.adjustments || [])
         .filter((adj) => adj.type === 'charge')

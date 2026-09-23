@@ -27,3 +27,7 @@ export {
 export {
     calculateParticipantResponsibilities
 } from "./participantResponsibilities";
+
+export {
+    calculateItemTotal
+} from "./itemTotals";

@@ -1,5 +1,6 @@
 import { formatIDR, capitalizeWords } from "../../../utils/formatter";
 import { areAllParticipantsAssigned } from "../../../domain/bills/participantAssignments";
+import { calculateItemTotal } from "../../../domain/calculation";
 
 export default function BillLineItem({
     item,
@@ -8,6 +9,8 @@ export default function BillLineItem({
     onDelete,
 }) {
     const isAssignedToAll = areAllParticipantsAssigned(item.assignedParticipantIds, participants);
+
+    const itemTotal = calculateItemTotal(item);
 
     return (
         <div className="flex flex-col py-3 gap-2">
@@ -26,7 +29,7 @@ export default function BillLineItem({
                     </div>
 
                     <span className="text-lg font-bold text-on-surface">
-                        {formatIDR(item.quantity * item.unitPrice)}
+                        {formatIDR(itemTotal)}
                     </span>
                 </div>
 

@@ -1,5 +1,6 @@
 import { areAllParticipantsAssigned } from "../../../domain/bills/participantAssignments";
 import { capitalizeWords, formatIDR } from "../../../utils/formatter";
+import { calculateItemTotal } from "../../../domain/calculation";
 
 export default function BillDetailItemsSection({
     items,
@@ -14,6 +15,7 @@ export default function BillDetailItemsSection({
             <div className="flex flex-col bg-surface-container-low/50 rounded-xl border border-outline-variant/30 divide-y divide-outline-variant/20 px-3">
                 {items.map((item) => {
                     const isAssignedToAll = areAllParticipantsAssigned(item.assignedParticipantIds, participants);
+                    const itemTotal = calculateItemTotal(item);
 
                     return (
                         <div
@@ -32,7 +34,7 @@ export default function BillDetailItemsSection({
                                 </div>
 
                                 <span className="text-xs font-bold text-on-surface">
-                                    {formatIDR(item.quantity * item.unitPrice)}
+                                    {formatIDR(itemTotal)}
                                 </span>
                             </div>
 

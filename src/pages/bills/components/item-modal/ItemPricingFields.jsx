@@ -4,25 +4,18 @@ import InputRupiah from "../../../../components/InputRupiah";
 export default function ItemPricingFields({
     quantity,
     unitPrice,
+    subtotal,
     onQuantityChange,
     onUnitPriceChange,
 }) {
-    const subtotal =
-        (Number(quantity) || 0) *
-        (Number(unitPrice) || 0);
-
     const handleDecreaseQuantity = () => {
-        const nextQuantity = Math.max(
-            1,
-            (Number(quantity) || 1) - 1
-        );
+        const nextQuantity = Math.max(1, (Number(quantity) || 1) - 1);
 
         onQuantityChange(nextQuantity);
     };
 
     const handleIncreaseQuantity = () => {
-        const nextQuantity =
-            (Number(quantity) || 0) + 1;
+        const nextQuantity = (Number(quantity) || 0) + 1;
 
         onQuantityChange(nextQuantity);
     };
@@ -37,18 +30,11 @@ export default function ItemPricingFields({
 
         const parsedValue = parseInt(value, 10);
 
-        onQuantityChange(
-            Number.isNaN(parsedValue)
-                ? ""
-                : parsedValue
-        );
+        onQuantityChange(Number.isNaN(parsedValue) ? "" : parsedValue);
     };
 
     const handleQuantityBlur = () => {
-        if (
-            !quantity ||
-            Number(quantity) < 1
-        ) {
+        if (!quantity || Number(quantity) < 1) {
             onQuantityChange(1);
         }
     };
@@ -79,9 +65,7 @@ export default function ItemPricingFields({
                             id="quantity"
                             min="1"
                             value={quantity}
-                            onFocus={(e) =>
-                                e.target.select()
-                            }
+                            onFocus={(e) => e.target.select()}
                             onChange={handleQuantityChange}
                             onBlur={handleQuantityBlur}
                             className="w-full bg-transparent text-center text-sm font-bold text-slate-800 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"

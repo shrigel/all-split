@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { capitalizeWords } from "../../../../utils/formatter";
+import { calculateItemTotal } from "../../../../domain/calculation";
 
 import Modal from "../../../../components/Modal";
 import Input from "../../../../components/Input";
@@ -22,9 +23,7 @@ export default function ItemModal({
 
     const isEditing = Boolean(itemToEdit);
 
-    const itemSubtotal =
-        (Number(unitPrice) || 0) *
-        (Number(quantity) || 1);
+    const itemSubtotal = quantity === "" ? 0 : calculateItemTotal({ unitPrice, quantity });
 
     const isReady = Boolean(
         name.trim() &&
@@ -37,9 +36,7 @@ export default function ItemModal({
             setName(itemToEdit.name);
             setUnitPrice(itemToEdit.unitPrice);
             setQuantity(itemToEdit.quantity);
-            setAssignedIds(
-                itemToEdit.assignedParticipantIds
-            );
+            setAssignedIds(itemToEdit.assignedParticipantIds);
 
             return;
         }
@@ -60,10 +57,7 @@ export default function ItemModal({
         const item = {
             name: capitalizeWords(name.trim()),
             unitPrice: Number(unitPrice),
-            quantity: Math.max(
-                1,
-                Number(quantity) || 1
-            ),
+            quantity: Math.max(1, Number(quantity) || 1),
             assignedParticipantIds: assignedIds,
         };
 
@@ -122,15 +116,14 @@ export default function ItemModal({
                         name="itemName"
                         autoComplete="off"
                         value={name}
-                        onChange={(e) =>
-                            setName(e.target.value)
-                        }
+                        onChange={(e) => setName(e.target.value)}
                         placeholder="cth. Nasi Goreng atau Matcha Latte"
                     />
 
                     <ItemPricingFields
                         quantity={quantity}
                         unitPrice={unitPrice}
+                        subtotal={itemSubtotal}
                         onQuantityChange={setQuantity}
                         onUnitPriceChange={setUnitPrice}
                     />
