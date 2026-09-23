@@ -46,10 +46,7 @@ export function allocateProportional(amount, recipients) {
 
     const totalWeight = recipients.reduce(
         (sum, recipient) => {
-            if (
-                !Number.isSafeInteger(recipient.weight) ||
-                recipient.weight < 0
-            ) {
+            if (!Number.isSafeInteger(recipient.weight) || recipient.weight < 0) {
                 throw new RangeError(
                     "Allocation weight must be a non-negative safe integer."
                 );
@@ -87,8 +84,7 @@ export function allocateProportional(amount, recipients) {
             return {
                 participantId,
                 amount: Math.floor(numerator / totalWeight),
-                remainder:
-                    numerator % totalWeight,
+                remainder: numerator % totalWeight,
                 index
             };
         }

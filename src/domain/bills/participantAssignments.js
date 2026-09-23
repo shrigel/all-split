@@ -11,8 +11,7 @@ export function areAllParticipantsAssigned(
     );
 
     return participants.every(
-        (participant) =>
-            assignedIds.has(participant.id)
+        (participant) => assignedIds.has(participant.id)
     );
 }
 
