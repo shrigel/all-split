@@ -32,8 +32,6 @@ export default function ParticipantSelector({
 
     const shareLabel = minimumShare === maximumShare ? formatIDR(minimumShare) : `${formatIDR(minimumShare)}-${formatIDR(maximumShare)}`;
 
-    const perPersonEstimate = selectedCount > 0 ? Math.round((Number(subtotal) || 0) / selectedCount) : 0;
-
     const isParticipantSelected = (participantId) => selectedIdSet.has(participantId);
 
     const handleToggleAll = () => {

@@ -4,12 +4,6 @@ import { calculateItemTotal } from "./itemTotals";
 export function calculateItemShares(item, participantIds) {
     const itemTotal = calculateItemTotal(item);
 
-    if (!Number.isSafeInteger(itemTotal)) {
-        throw new RangeError(
-            "Item total must be a safe integer."
-        );
-    }
-
     const assignedIds = new Set(
         item.assignedParticipantIds || []
     );
