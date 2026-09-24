@@ -1,6 +1,7 @@
 export {
     calculateBillTotal,
-    calculateSessionTotal
+    calculateSessionTotal,
+    calculateBillFinancialSummary
 } from "./billTotals";
 
 export {
@@ -31,3 +32,8 @@ export {
 export {
     calculateItemTotal
 } from "./itemTotals";
+
+export {
+    calculateMaximumDiscount,
+    clampDiscountAmount
+} from "./discountGuard";

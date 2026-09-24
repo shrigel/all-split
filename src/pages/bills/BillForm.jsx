@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import { calculateBillTotal } from "../../domain/calculation";
+import {
+	calculateBillTotal,
+	calculateMaximumDiscount,
+	clampDiscountAmount
+} from "../../domain/calculation";
 import { calculateBilledParticipantCount } from "../../domain/bills/participantAssignments";
+import { capitalizeWords } from "../../utils/formatter";
 import ItemModal from "./components/item-modal/ItemModal";
 import AdjustmentModal from "./components/AdjustmentModal";
 import ScanReceiptModal from "./components/ScanReceiptModal";
@@ -11,7 +16,6 @@ import BillInfoSection from "./components/BillInfoSection";
 import BillItemsSection from "./components/BillItemsSection";
 import BillAdjustmentsSection from "./components/BillAdjustmentsSection";
 import BillSummarySection from "./components/BillSummarySection";
-import { capitalizeWords } from "../../utils/formatter";
 
 export default function BillForm({
 	participants,
@@ -144,18 +148,34 @@ export default function BillForm({
 	};
 
 	const handleSaveAdjustment = (adjData) => {
+		let adjToSave = adjData;
+
+		if (adjData.type === 'discount') {
+			const maxDiscount = calculateMaximumDiscount({ items, adjustments }, editingAdj?.id);
+
+			adjToSave = {
+				...adjData,
+				amount: clampDiscountAmount(adjData.amount, maxDiscount)
+			};
+		}
+
 		if (editingAdj) {
-			setAdjustments((prev) =>
-				prev.map((a) =>
-					a.id === editingAdj.id ? { ...adjData, id: editingAdj.id } : a,
-				),
-			);
+			setAdjustments((prev) => prev.map((adj) => adj.id === editingAdj.id ?
+				{
+					...adjToSave,
+					id: editingAdj.id
+				} : adj
+			));
 		} else {
 			setAdjustments((prev) => [
 				...prev,
-				{ ...adjData, id: "adj-" + Date.now() },
-			]);
+				{
+					...adjToSave,
+					id: "adj-" + Date.now()
+				}
+			])
 		}
+
 		setIsAdjModalOpen(false);
 		setEditingAdj(null);
 	};
