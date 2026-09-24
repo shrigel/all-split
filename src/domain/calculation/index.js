@@ -1,3 +1,5 @@
+import { validateBillFinancials } from "./financialValidation";
+
 export {
     calculateBillTotal,
     calculateSessionTotal,
@@ -35,5 +37,11 @@ export {
 
 export {
     calculateMaximumDiscount,
-    clampDiscountAmount
+    clampDiscountAmount,
+    normalizeDiscountAdjustments
 } from "./discountGuard";
+
+export {
+    validateBillFinancials,
+    validateSessionFinancials
+} from "./financialValidation";

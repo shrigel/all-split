@@ -7,6 +7,7 @@ import {
     loadSavedSessions,
     saveSavedSessions
 } from "../utils/sessionStorage";
+import { validateSessionFinancials } from "../domain/calculation";
 
 export function useSessionManager() {
     const [currentSession, setCurrentSession] = useState(() => loadCurrentSession());
@@ -125,6 +126,16 @@ export function useSessionManager() {
     };
 
     const finalizeSession = () => {
+        const validation = validateSessionFinancials(currentSession);
+
+        if (!validation.isValid) {
+            return {
+                success: false,
+                sessionId: null,
+                validation
+            };
+        }
+
         const now = Date.now();
         const sessionId = `session-${now}`;
 
@@ -142,7 +153,11 @@ export function useSessionManager() {
             ...prev
         ]);
 
-        return sessionId;
+        return {
+            success: true,
+            sessionId,
+            validation
+        };
     };
 
     return {

@@ -37,6 +37,7 @@ function App() {
 	const [isFormDirty, setIsFormDirty] = useState(false);
 	const [isBackConfModalOpen, setIsBackConfModalOpen] = useState(false);
 	const [pendingFinalizationId, setPendingFinalizationId] = useState(null);
+	const [sessionValidation, setSessionValidation] = useState(null);
 
 	useEffect(() => {
 		const hasActiveSession = Boolean(currentSession.name.trim());
@@ -116,12 +117,21 @@ function App() {
 	};
 
 	const handleCalculateSession = () => {
-		const sessionId = finalizeSession();
+		const result = finalizeSession();
 
-		setPendingFinalizationId(sessionId);
+		if (!result.success) {
+			setSessionValidation(result.validation);
+			return;
+		}
 
-		navigate(`/result/${sessionId}`);
+		setSessionValidation(null);
+		setPendingFinalizationId(result.sessionId);
+		navigate(`/result/${result.sessionId}`);
 	};
+
+	useEffect(() => {
+		setSessionValidation(null);
+	}, [currentSession]);
 
 	const handleOpenSession = (sessionId) => {
 		const sessionExists = savedSessions.some(
@@ -215,10 +225,9 @@ function App() {
 								>
 									<Bills
 										session={currentSession}
+										sessionValidation={sessionValidation}
 										onAddBill={() => navigate('/bills/create')}
-										onEditBill={(bill) =>
-											navigate(`/bills/edit/${bill.id}`)
-										}
+										onEditBill={(bill) => navigate(`/bills/edit/${bill.id}`)}
 										onDeleteBill={deleteBill}
 										onCalculateSession={handleCalculateSession}
 										onBack={handleBackToParticipants}

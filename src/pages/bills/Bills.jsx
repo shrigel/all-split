@@ -7,6 +7,7 @@ import SessionBottomNav from "../../components/SessionBottomNav";
 
 export default function Bills({
     session,
+    sessionValidation,
     onAddBill,
     onEditBill,
     onDeleteBill,
@@ -18,6 +19,8 @@ export default function Bills({
         participants,
         bills
     } = session;
+
+    const validationErrors = sessionValidation?.errors ?? [];
 
     const [billToDelete, setBillToDelete] = useState(null);
 
@@ -65,6 +68,53 @@ export default function Bills({
                     onEditBill={onEditBill}
                     onRequestDeleteBill={handleRequestDeleteBill}
                 />
+
+                {validationErrors.length > 0 && (
+                    <div className="flex flex-col gap-2 rounded-xl border border-error/30 bg-error-container/30 p-4">
+                        <div className="flex items-center gap-2 text-error">
+                            <span className="material-symbols-outlined">
+                                error
+                            </span>
+
+                            <p className="font-semibold">
+                                Tagihan belum dapat dihitung
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-2 text-sm">
+                            {validationErrors.map((error, index) => {
+                                if (error.code === "INVALID_BILL") {
+                                    const bill = bills[error.billIndex];
+
+                                    return (
+                                        <div
+                                            key={`${error.code}-${error.billIndex}`}
+                                            className="flex flex-col gap-1"
+                                        >
+                                            <p className="font-medium">
+                                                {bill?.name ?? `Tagihan ${error.billIndex + 1}`}
+                                            </p>
+
+                                            <ul className="list-disc pl-5">
+                                                {error.errors.map((billError) => (
+                                                    <li key={billError.code}>
+                                                        {billError.message}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <p key={`${error.code}-${index}`}>
+                                        {error.message}
+                                    </p>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-col gap-2.5">
                     <Button

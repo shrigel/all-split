@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import {
 	calculateBillTotal,
-	calculateMaximumDiscount,
-	clampDiscountAmount
+	normalizeDiscountAdjustments
 } from "../../domain/calculation";
 import { calculateBilledParticipantCount } from "../../domain/bills/participantAssignments";
 import { capitalizeWords } from "../../utils/formatter";
@@ -115,21 +114,43 @@ export default function BillForm({
 	};
 
 	const handleSaveItem = (itemData) => {
+		let nextItems;
+
 		if (editingItem) {
-			setItems((prev) =>
-				prev.map((i) =>
-					i.id === editingItem.id ? { ...itemData, id: editingItem.id } : i,
-				),
+			nextItems = items.map((item) => item.id === editingItem.id
+				? { ...itemData, id: editingItem.id }
+				: item
 			);
 		} else {
-			setItems((prev) => [...prev, { ...itemData, id: "item-" + Date.now() }]);
+			nextItems = [
+				...items,
+				{
+					...itemData,
+					id: "item-" + Date.now()
+				}
+			];
 		}
+
+		setItems(nextItems);
+
+		setAdjustments((prev) => normalizeDiscountAdjustments({
+			items: nextItems,
+			adjustments: prev
+		}));
+
 		setIsItemModalOpen(false);
 		setEditingItem(null);
 	};
 
 	const handleDeleteItem = (itemId) => {
-		setItems((prev) => prev.filter((i) => i.id !== itemId));
+		const nextItems = items.filter((item) => item.id !== itemId);
+
+		setItems(nextItems);
+
+		setAdjustments((prev) => normalizeDiscountAdjustments({
+			items: nextItems,
+			adjustments: prev
+		}));
 	};
 
 	const handleEditItem = (item) => {
@@ -148,40 +169,41 @@ export default function BillForm({
 	};
 
 	const handleSaveAdjustment = (adjData) => {
-		let adjToSave = adjData;
-
-		if (adjData.type === 'discount') {
-			const maxDiscount = calculateMaximumDiscount({ items, adjustments }, editingAdj?.id);
-
-			adjToSave = {
-				...adjData,
-				amount: clampDiscountAmount(adjData.amount, maxDiscount)
-			};
-		}
+		let nextAdjustments;
 
 		if (editingAdj) {
-			setAdjustments((prev) => prev.map((adj) => adj.id === editingAdj.id ?
-				{
-					...adjToSave,
+			nextAdjustments = adjustments.map((adj) => adj.id === editingAdj.id
+				? {
+					...adjData,
 					id: editingAdj.id
 				} : adj
-			));
+			);
 		} else {
-			setAdjustments((prev) => [
-				...prev,
+			nextAdjustments = [
+				...adjustments,
 				{
-					...adjToSave,
+					...adjData,
 					id: "adj-" + Date.now()
 				}
-			])
+			];
 		}
+
+		setAdjustments(normalizeDiscountAdjustments({
+			items,
+			adjustments: nextAdjustments
+		}));
 
 		setIsAdjModalOpen(false);
 		setEditingAdj(null);
 	};
 
 	const handleDeleteAdjustment = (adjId) => {
-		setAdjustments((prev) => prev.filter((a) => a.id !== adjId));
+		const nextAdjustments = adjustments.filter((adj) => adj.id !== adjId);
+
+		setAdjustments(normalizeDiscountAdjustments({
+			items,
+			adjustments: nextAdjustments
+		}));
 	};
 
 	const handleEditAdjustment = (adj) => {

@@ -6,7 +6,8 @@ import {
 
 import {
     calculateMaximumDiscount,
-    clampDiscountAmount
+    clampDiscountAmount,
+    normalizeDiscountAdjustments
 } from "./discountGuard";
 
 describe("calculateMaximumDiscount", () => {
@@ -143,4 +144,190 @@ describe("clampDiscountAmount", () => {
     test("should return correct if discount amount is exceeded", () => {
         expect(clampDiscountAmount(150000, 100000)).toBe(100000);
     });
+});
+
+test("keeps discount unchanged when it is within available capacity", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 60000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result).toEqual([
+        {
+            id: "discount-1",
+            type: "discount",
+            amount: 60000
+        }
+    ]);
+});
+
+test("clamps discount when available capacity decreases", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 120000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result[0].amount).toBe(100000);
+});
+
+test("keeps charge adjustments unchanged", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "charge-1",
+                type: "charge",
+                amount: 20000
+            },
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 120000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result).toEqual([
+        {
+            id: "charge-1",
+            type: "charge",
+            amount: 20000
+        },
+        {
+            id: "discount-1",
+            type: "discount",
+            amount: 120000
+        }
+    ]);
+});
+
+test("clamps multiple discounts using remaining capacity", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 70000
+            },
+            {
+                id: "discount-2",
+                type: "discount",
+                amount: 50000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result).toEqual([
+        {
+            id: "discount-1",
+            type: "discount",
+            amount: 70000
+        },
+        {
+            id: "discount-2",
+            type: "discount",
+            amount: 30000
+        }
+    ]);
+});
+
+test("includes charges in total discount capacity", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "charge-1",
+                type: "charge",
+                amount: 20000
+            },
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 150000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result[1].amount).toBe(120000);
+});
+
+test("removes later discount when no capacity remains", () => {
+    const bill = {
+        items: [
+            {
+                unitPrice: 100000,
+                quantity: 1
+            }
+        ],
+        adjustments: [
+            {
+                id: "discount-1",
+                type: "discount",
+                amount: 100000
+            },
+            {
+                id: "discount-2",
+                type: "discount",
+                amount: 20000
+            }
+        ]
+    };
+
+    const result = normalizeDiscountAdjustments(bill);
+
+    expect(result).toEqual([
+        {
+            id: "discount-1",
+            type: "discount",
+            amount: 100000
+        }
+    ]);
 });
