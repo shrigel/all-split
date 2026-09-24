@@ -1,5 +1,3 @@
-import { validateBillFinancials } from "./financialValidation";
-
 export {
     calculateBillTotal,
     calculateSessionTotal,
