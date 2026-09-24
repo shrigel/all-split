@@ -128,6 +128,20 @@ export function validateBillFinancials(bill, participants) {
     if (!hasInvalidItemValue) {
         financialSummary = calculateBillFinancialSummary(normalizedBill);
 
+        const hasUnsafeFinancialTotal = [
+            financialSummary.itemsSubtotal,
+            financialSummary.totalCharges,
+            financialSummary.totalDiscounts,
+            financialSummary.finalTotal
+        ].some((value) => !Number.isSafeInteger(value));
+
+        if (hasUnsafeFinancialTotal) {
+            errors.push({
+                code: "UNSAFE_FINANCIAL_TOTAL",
+                message: "Total nilai finansial melebihi batas bilangan bulat yang aman"
+            });
+        }
+
         if (financialSummary.finalTotal < 0) {
             errors.push({
                 code: "NEGATIVE_FINAL_TOTAL",

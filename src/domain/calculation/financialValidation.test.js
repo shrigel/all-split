@@ -459,3 +459,49 @@ test("reconciles participant balances across multiple bills", () => {
         totalBalance: 0
     });
 });
+
+test("returns unsafe financial total when aggregate bill total exceeds safe integer range", () => {
+    const bill = {
+        payerId: "A",
+        items: [
+            {
+                unitPrice: 5000000000000000,
+                quantity: 1,
+                assignedParticipantIds: ["A"]
+            },
+            {
+                unitPrice: 5000000000000000,
+                quantity: 1,
+                assignedParticipantIds: ["B"]
+            }
+        ],
+        adjustments: []
+    };
+
+    expect(() =>
+        validateBillFinancials(bill, participants)
+    ).not.toThrow();
+
+    const result =
+        validateBillFinancials(bill, participants);
+
+    expect(result.isValid).toBe(false);
+
+    expect(result.errors).toContainEqual(
+        expect.objectContaining({
+            code: "UNSAFE_FINANCIAL_TOTAL"
+        })
+    );
+
+    expect(
+        Number.isSafeInteger(
+            result.summary.itemsSubtotal
+        )
+    ).toBe(false);
+
+    expect(
+        Number.isSafeInteger(
+            result.summary.finalTotal
+        )
+    ).toBe(false);
+});
