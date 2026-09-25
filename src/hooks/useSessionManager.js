@@ -2,20 +2,72 @@ import { useCallback, useEffect, useState } from "react";
 import { getParticipantUsage } from "../utils/sessionRules";
 import {
     INITIAL_SESSION,
-    loadCurrentSession,
-    saveCurrentSession,
     loadSavedSessions,
     saveSavedSessions
 } from "../utils/sessionStorage";
+import {
+    getActiveSession,
+    saveActiveSession,
+    deleteActiveSession,
+    getCompletedSessions,
+    saveCompletedSession
+} from "../storage/sessionRepository";
 import { validateSessionFinancials } from "../domain/calculation";
 
 export function useSessionManager() {
-    const [currentSession, setCurrentSession] = useState(() => loadCurrentSession());
-    const [savedSessions, setSavedSessions] = useState(() => loadSavedSessions());
+    const [currentSession, setCurrentSession] = useState(INITIAL_SESSION);
+    const [savedSessions, setSavedSessions] = useState([]);
+    const [isHydrated, setIsHydrated] = useState(false);
 
     useEffect(() => {
-        saveCurrentSession(currentSession);
-    }, [currentSession]);
+        let cancelled = false;
+
+        const hydrateActiveSession = async () => {
+            try {
+                const [
+                    storedActiveSession,
+                    storedCompletedSessions
+                ] = await Promise.all([
+                    getActiveSession(),
+                    getCompletedSessions()
+                ]);
+
+                if (cancelled) return;
+
+                setCurrentSession(storedSession ?? INITIAL_SESSION);
+                setSavedSessions(storedCompletedSessions);
+            } catch (error) {
+                console.error("Gagal memuat active session dari IndexedDB:", error);
+            } finally {
+                if (!cancelled) setIsHydrated(true);
+            }
+        };
+
+        hydrateActiveSession();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isHydrated) return;
+
+        const persistActiveSession = async () => {
+            try {
+                if (!currentSession.name.trim()) {
+                    await deleteActiveSession();
+                    return;
+                }
+
+                await saveActiveSession(currentSession);
+            } catch (error) {
+                console.error("Gagal menyimpan active session ke IndexedDB:", error);
+            }
+        };
+
+        persistActiveSession();
+    }, [currentSession, isHydrated]);
 
     useEffect(() => {
         saveSavedSessions(savedSessions);
@@ -163,6 +215,7 @@ export function useSessionManager() {
     return {
         currentSession,
         savedSessions,
+        isHydrated,
         startSession,
         discardSession,
         updateLastVisitedPage,

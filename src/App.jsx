@@ -20,6 +20,7 @@ function App() {
 	const {
 		currentSession,
 		savedSessions,
+		isHydrated,
 		startSession,
 		discardSession,
 		updateLastVisitedPage,
@@ -161,6 +162,10 @@ function App() {
 
 		navigate('/');
 	};
+
+	if (!isHydrated) {
+		return null;
+	}
 
 	return (
 		<>
