@@ -7,8 +7,10 @@
     ],
     "scripts": {
         "dev:frontend": "npm run dev --workspace=@all-split/frontend",
+        "dev:backend": "npm run dev --workspace=@all-split/backend",
         "build:frontend": "npm run build --workspace=@all-split/frontend",
         "test:frontend": "npm run test:run --workspace=@all-split/frontend",
-        "lint:frontend": "npm run lint --workspace=@all-split/frontend"
+        "lint:frontend": "npm run lint --workspace=@all-split/frontend",
+        "start:backend": "npm run start --workspace=@all-split/backend"
     }
 }
