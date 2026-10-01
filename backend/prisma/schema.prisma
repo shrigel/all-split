@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Split {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime
+
+  participants Participant[]
+  bills        Bill[]
+
+  @@index([expiresAt])
+}
+
+model Participant {
+  id      String @id @default(uuid()) @db.Uuid
+  splitId String @db.Uuid
+  name    String @db.Citext
+
+  paidBills  Bill[]
+  itemShares ItemShare[]
+
+  split Split @relation(fields: [splitId], references: [id], onDelete: Cascade)
+
+  @@unique([splitId, name])
+}
+
+model Bill {
+  id        String   @id @default(uuid()) @db.Uuid
+  splitId   String   @db.Uuid
+  payerId   String   @db.Uuid
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items       BillItem[]
+  adjustments BillAdjustment[]
+
+  split Split       @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  payer Participant @relation(fields: [payerId], references: [id], onDelete: NoAction)
+
+  @@index([splitId])
+  @@index([payerId])
+}
+
+model BillItem {
+  id        String @id @default(uuid()) @db.Uuid
+  billId    String @db.Uuid
+  name      String
+  quantity  Int
+  unitPrice BigInt
+
+  shares ItemShare[]
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+}
+
+model ItemShare {
+  itemId        String @db.Uuid
+  participantId String @db.Uuid
+
+  item        BillItem    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: NoAction)
+
+  @@id([itemId, participantId])
+  @@index([participantId])
+}
+
+model BillAdjustment {
+  id             String   @id @default(uuid()) @db.Uuid
+  billId         String   @db.Uuid
+  name           String
+  type           String
+  amount         BigInt
+  allocationType String
+  createdAt      DateTime @default(now())
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+}

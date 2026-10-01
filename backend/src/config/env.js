@@ -12,6 +12,10 @@ const envSchema = z.object({
         .positive()
         .max(65535)
         .default(3000),
+
+    DATABASE_URL: z
+        .string()
+        .min(1, 'DATABASE_URL is required'),
 });
 
 const result = envSchema.safeParse(process.env);

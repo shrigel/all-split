@@ -17,6 +17,12 @@ dist-ssr
 **/.env.*
 !**/.env.example
 
+# AI agent generated files
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
