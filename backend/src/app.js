@@ -5,6 +5,8 @@ import healthRouter from './routes/health.routes.js';
 import splitRouter from './routes/split.routes.js';
 import participantRouter from './routes/participant.routes.js'
 import billRouter from './routes/bill.routes.js';
+import itemRouter from './routes/item.routes.js'
+import itemShareRouter from './routes/itemShare.routes.js';
 
 const app = express();
 
@@ -14,6 +16,8 @@ app.use('/api/health', healthRouter);
 app.use('/api/splits', splitRouter);
 app.use('/api', participantRouter);
 app.use('/api', billRouter);
+app.use('/api', itemRouter);
+app.use('/api', itemShareRouter);
 
 app.use(notFound);
 app.use(errorHandler);
