@@ -60,3 +60,61 @@ export const getSplit = async (id, accessToken) => {
 
     return split;
 }
+
+export const updateSplit = async (id, accessToken, name) => {
+    const accessTokenHash = hashAccessToken(accessToken);
+
+    const existingSplit = await prisma.split.findFirst({
+        where: {
+            id,
+            accessTokenHash,
+            expiresAt: {
+                gt: new Date()
+            }
+        }
+    });
+
+    if (!existingSplit) {
+        return null;
+    }
+
+    const split = await prisma.split.update({
+        where: {
+            id
+        },
+        data: {
+            name
+        },
+        omit: {
+            accessTokenHash: true
+        }
+    });
+
+    return split;
+}
+
+export const deleteSplit = async (id, accessToken) => {
+    const accessTokenHash = hashAccessToken(accessToken);
+
+    const existingSplit = await prisma.split.findFirst({
+        where: {
+            id,
+            accessTokenHash,
+            expiresAt: {
+                gt: new Date()
+            }
+        }
+    });
+
+    if (!existingSplit) {
+        return null;
+    }
+
+    await prisma.split.delete({
+        where: {
+            id
+        }
+    });
+
+    return true;
+}

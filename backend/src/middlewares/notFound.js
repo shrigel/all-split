@@ -1,6 +1,11 @@
-export const notFound = (req, res, next) => {
-    const error = new Error(`Route not found: ${req.method} ${req.originalUrl}`);
-    error.statusCode = 404;
+import { createHttpError } from "../utils/httpError.js";
 
-    next(error);
+export const notFound = (req, res, next) => {
+    next(
+        createHttpError(
+            404,
+            "ROUTE_NOT_FOUND",
+            `Route not found: ${req.method} ${req.originalUrl}`
+        )
+    );
 };

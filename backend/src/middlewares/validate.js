@@ -1,3 +1,5 @@
+import { createHttpError } from "../utils/httpError.js";
+
 export const validate = (schema) => {
     return (req, res, next) => {
         const result = schema.safeParse({
@@ -7,11 +9,14 @@ export const validate = (schema) => {
         });
 
         if (!result.success) {
-            const error = new Error('Validation failed');
-            error.statusCode = 400;
-            error.details = result.error.issues;
-
-            return next(error);
+            return next(
+                createHttpError(
+                    400,
+                    "VALIDATION_ERROR",
+                    "Validation failed",
+                    result.error.issues
+                )
+            );
         }
 
         req.validated = result.data;
