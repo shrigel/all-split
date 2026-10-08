@@ -1,26 +1,30 @@
 import { z } from "zod";
 
 const monetaryValueSchema = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
+const typeSchema = z.enum(['charge', 'discount']);
+const allocationTypeSchema = z.enum(['proportional', 'equal']);
 
-export const createItemSchema = z.object({
+export const createAdjustmentSchema = z.object({
     params: z.object({
         id: z.uuid()
     }),
     body: z.object({
         name: z.string().trim().nonempty(),
-        quantity: z.number().int().positive(),
-        unitPrice: monetaryValueSchema
+        type: typeSchema,
+        amount: monetaryValueSchema,
+        allocationType: allocationTypeSchema,
     })
 });
 
-export const updateItemSchema = z.object({
+export const updateAdjustmentSchema = z.object({
     params: z.object({
         id: z.uuid()
     }),
     body: z.object({
         name: z.string().trim().nonempty().optional(),
-        quantity: z.number().int().positive().optional(),
-        unitPrice: monetaryValueSchema.optional()
+        type: typeSchema.optional(),
+        amount: monetaryValueSchema.optional(),
+        allocationType: allocationTypeSchema.optional()
     }).refine(
         (data) => Object.keys(data).length > 0,
         {
@@ -29,7 +33,7 @@ export const updateItemSchema = z.object({
     )
 });
 
-export const itemIdParamSchema = z.object({
+export const adjustmentIdParamSchema = z.object({
     params: z.object({
         id: z.uuid()
     })

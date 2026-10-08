@@ -18,7 +18,7 @@ export const updateBillSchema = z.object({
         name: z.string().trim().nonempty().optional(),
         payerId: z.uuid().optional()
     }).refine(
-        (data) => data.name !== undefined || data.payerId !== undefined,
+        (data) => Object.keys(data).length > 0,
         {
             message: "At least one field is required"
         }
