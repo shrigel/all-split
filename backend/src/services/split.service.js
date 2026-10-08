@@ -45,11 +45,7 @@ export const getSplit = async (id, accessToken) => {
                     payer: true,
                     items: {
                         include: {
-                            shares: {
-                                include: {
-                                    participant: true
-                                }
-                            }
+                            shares: true
                         }
                     },
                     adjustments: true
@@ -58,8 +54,22 @@ export const getSplit = async (id, accessToken) => {
         }
     });
 
-    return split;
-}
+    return {
+        ...split,
+        bills: split.bills.map((bill) => ({
+            ...bill,
+            items: bill.items.map((item) => ({
+                ...item,
+                unitPrice: Number(item.unitPrice),
+                assignedParticipantIds: item.shares.map((share) => share.participantId)
+            })),
+            adjustments: bill.adjustments.map((adjustment) => ({
+                ...adjustment,
+                amount: Number(adjustment.amount)
+            }))
+        }))
+    };
+};
 
 export const updateSplit = async (id, accessToken, name) => {
     const accessTokenHash = hashAccessToken(accessToken);
