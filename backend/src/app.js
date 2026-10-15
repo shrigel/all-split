@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { notFound } from './middlewares/notFound.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import healthRouter from './routes/health.routes.js';
@@ -12,6 +13,7 @@ import settlementRouter from './routes/settlement.route.js';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/health', healthRouter);

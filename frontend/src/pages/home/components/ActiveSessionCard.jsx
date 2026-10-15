@@ -39,7 +39,7 @@ export default function ActiveSessionCard({
             </div>
 
             <Button
-                onClick={onResume}
+                onClick={() => onResume(session.id)}
                 iconEnd="arrow_forward"
             >
                 Lanjutkan Sesi Ini

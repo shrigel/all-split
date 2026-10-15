@@ -3,6 +3,7 @@ import { apiRequest } from "./client";
 export const createParticipant = (splitId, token, name) =>
     apiRequest(`/api/splits/${splitId}/participants`, {
         method: 'POST',
+        token,
         body: JSON.stringify({ name }),
     });
 

@@ -31,7 +31,7 @@ export default function Home({
     };
 
     const handleConfirmDiscard = () => {
-        onDiscardSession();
+        onDiscardSession(currentSession.id);
         setIsDiscardModalOpen(false);
     };
 

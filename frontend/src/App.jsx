@@ -21,6 +21,8 @@ function App() {
 		currentSession,
 		savedSessions,
 		startSession,
+		loadSession,
+		resetCurrentSession,
 		discardSession,
 		updateLastVisitedPage,
 		addParticipant,
@@ -72,31 +74,40 @@ function App() {
 			return;
 		}
 
-		discardSession();
+		resetCurrentSession();
 		setPendingFinalizationId(null);
 	}, [
 		pendingFinalizationId,
 		location.pathname,
-		discardSession
+		resetCurrentSession
 	]);
 
-	const handleStartSession = (name) => {
-		startSession(name);
+	const handleStartSession = async (name) => {
+		try {
+			await startSession(name);
 
-		navigate('/participants');
+			navigate('/participants');
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
-	const handleResumeSession = () => {
-		const lastPage = currentSession.navigation?.lastPage ?? 'participants';
+	const handleResumeSession = async (splitId) => {
+		try {
+			await loadSession(splitId);
 
-		const canOpenBills = currentSession.participants.length >= 2;
+			const lastPage = currentSession.navigation?.lastPage ?? 'participants';
+			const canOpenBills = currentSession.participants.length >= 2;
 
-		if (lastPage === 'bills' && canOpenBills) {
-			navigate('/bills');
-			return;
+			if (lastPage === 'bills' && canOpenBills) {
+				navigate('/bills');
+				return;
+			}
+
+			navigate('/participants');
+		} catch (error) {
+			console.error(error)
 		}
-
-		navigate('/participants');
 	};
 
 	const handleGoHome = () => {
