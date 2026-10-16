@@ -31,7 +31,6 @@ export function useSessionManager() {
         if (activeId) {
             const ref = getSplitReference(activeId);
             if (ref) {
-                // Tampilkan metadata awal langsung agar hasActiveSession bernilai true
                 return {
                     id: ref.splitId,
                     name: ref.name,
@@ -95,9 +94,9 @@ export function useSessionManager() {
             localStorage.setItem(ACTIVE_SPLIT_KEY, split.id);
 
             return split;
-        } catch (error) {
-            setError(error.message || "Gagal membuat sesi split");
-            throw error;
+        } catch (err) {
+            setError(err.message || "Gagal membuat sesi split");
+            throw err;
         } finally {
             setIsLoading(false);
         }
@@ -184,6 +183,8 @@ export function useSessionManager() {
             } else {
                 setError(err.message || 'Gagal memuat sesi dari server.');
             }
+
+            throw err;
         } finally {
             setIsLoading(false);
         }
@@ -209,34 +210,80 @@ export function useSessionManager() {
         });
     }, []);
 
-    const addParticipant = (name) => {
-        const newParticipant = {
-            id: 'p-' + Date.now(),
-            name
-        };
+    const addParticipant = async (name) => {
+        // const newParticipant = {
+        //     id: 'p-' + Date.now(),
+        //     name
+        // };
 
-        setCurrentSession((prev) => ({
-            ...prev,
-            participants: [
-                ...prev.participants,
-                newParticipant
-            ],
-        }));
+        // setCurrentSession((prev) => ({
+        //     ...prev,
+        //     participants: [
+        //         ...prev.participants,
+        //         newParticipant
+        //     ],
+        // }));
+
+        if (!currentSession.id || !currentSession.accessToken) {
+            throw new Error('Sesi aktif belum dibuat atau tidak valid.');
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const participant = await createParticipant(currentSession.id, currentSession.accessToken, name);
+
+            setCurrentSession((prev) => ({
+                ...prev,
+                participants: [...prev.participants, participant]
+            }));
+
+            return participant;
+        } catch (err) {
+            setError(err.message || 'Gagal menambahkan peserta.');
+            throw err;
+        } finally {
+            setIsLoading(false)
+        }
     };
 
-    const removeParticipant = (id) => {
-        setCurrentSession((prev) => {
-            const usage = getParticipantUsage(prev, id);
+    const removeParticipant = async (participantId) => {
+        // setCurrentSession((prev) => {
+        //     const usage = getParticipantUsage(prev, id);
 
-            if (usage.isUsed) {
-                return prev;
-            }
+        //     if (usage.isUsed) {
+        //         return prev;
+        //     }
 
-            return {
+        //     return {
+        //         ...prev,
+        //         participants: prev.participants.filter((p) => p.id !== id)
+        //     };
+        // });
+
+        if (!currentSession.accessToken) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await deleteParticipant(participantId, currentSession.accessToken);
+
+            setCurrentSession((prev) => ({
                 ...prev,
-                participants: prev.participants.filter((p) => p.id !== id)
-            };
-        });
+                participants: prev.participants.filter((p) => p.id !== participantId)
+            }));
+        } catch (err) {
+            if (err.status === 409) {
+                setError('Peserta tidak dapat dihapus karena masih digunakan di tagihan.');
+            } else {
+                setError(err.message || 'Gagal menghapus peserta.');
+            }
+            throw err;
+        } finally {
+            setIsLoading(false)
+        }
     };
 
     const checkParticipantUsage = (participantId) => {

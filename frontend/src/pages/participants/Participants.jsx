@@ -19,7 +19,8 @@ export default function Participants({
 }) {
     const [participantName, setParticipantName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState(null)
     const [isNavigationModalOpen, setIsNavigationModalOpen] = useState(false);
     const [pendingNavigation, setPendingNavigation] = useState(null);
     const [isBlockedRemovalModalOpen, setIsBlockedRemovalModalOpen] = useState(false);
@@ -78,7 +79,9 @@ export default function Participants({
         if (errorMessage) setErrorMessage('');
     };
 
-    const handleRequestRemoveParticipant = (participant) => {
+    const handleRequestRemoveParticipant = async (participant) => {
+        if (deletingId) return;
+
         const usage = getParticipantUsage(participant.id);
 
         if (usage.isUsed) {
@@ -87,7 +90,16 @@ export default function Participants({
             return;
         }
 
-        onRemoveParticipant(participant.id);
+        setDeletingId(participant.id);
+
+        try {
+            await onRemoveParticipant(participant.id);
+            setErrorMessage('');
+        } catch (err) {
+            setErrorMessage(err.message || 'Gagal menghapus peserta');
+        } finally {
+            setDeletingId(null);
+        }
     }
 
     const handleCloseBlockedRemovalModal = () => {
@@ -95,8 +107,10 @@ export default function Participants({
         setBlockedRemoval(null);
     };
 
-    const handleSubmitParticipant = (e) => {
+    const handleSubmitParticipant = async (e) => {
         e.preventDefault();
+
+        if (isSubmitting) return;
 
         const trimmed = participantName.trim();
 
@@ -115,9 +129,17 @@ export default function Participants({
         }
 
         const formatted = capitalizeWords(trimmed);
-        onAddParticipant(formatted);
-        setParticipantName('');
-        setErrorMessage('');
+
+        setIsSubmitting(true);
+        try {
+            await onAddParticipant(formatted);
+            setParticipantName('');
+            setErrorMessage('');
+        } catch (err) {
+            setErrorMessage(err.message || 'Gagal menambahkan peserta');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
