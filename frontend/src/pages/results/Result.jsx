@@ -10,13 +10,51 @@ import ResultSettlementsSection from "./components/ResultSettlementsSection";
 import ResultExpensesSection from "./components/ResultExpensesSection";
 import ResultActions from "./components/ResultActions";
 import Button from "../../components/Button";
+import { getSplitReference } from "../../utils/splitReferences";
+import { getSplit } from "../../api/splits";
+import { getSettlements } from "../../api/settlements";
 
-export default function Result({ savedSessions, onBackToHome }) {
+export default function Result({ onBackToHome }) {
     const { sessionId } = useParams();
+
+    const [split, setSplit] = useState(null);
+    const [settlements, setSettlements] = useState([]);
+    const [participantBalances, setParticipantBalances] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
+
     const [selectedBill, setSelectedBill] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
     const copyTimeoutRef = useRef(null);
-    const session = savedSessions.find((s) => s.id === sessionId);
+
+    useEffect(() => {
+        const loadResultData = async () => {
+            const ref = getSplitReference(sessionId);
+
+            if (!ref) {
+                setFetchError('Kredensial sesi tidak ditemukan di perangkat ini.');
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const [spliData, settlementRes] = await Promise.all([
+                    getSplit(sessionId, ref.accessToken),
+                    getSettlements(sessionId, ref.accessToken)
+                ]);
+
+                setSplit(spliData);
+                setSettlements(settlementRes.settlements || []);
+                setParticipantBalances(settlementRes.balances || {});
+            } catch (err) {
+                setFetchError(err.message || 'Gagal memuat hasil patungan.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadResultData();
+    }, [sessionId]);
 
     useEffect(() => {
         return () => {
@@ -26,26 +64,32 @@ export default function Result({ savedSessions, onBackToHome }) {
         };
     }, []);
 
-    if (!session) {
+    if (isLoading) {
+        return (
+            <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <span className="material-symbols-outlined animate-spin text-3xl text-primary mb-2">
+                    progress_activity
+                </span>
+                <p className="text-slate-500">Memuat hasil patungan...</p>
+            </main>
+        );
+    }
+
+    if (fetchError || !split) {
         return (
             <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <p className="text-slate-500 mb-4">
-                    Sesi patungan tidak ditemukan atau sudah kedaluwarsa.
+                    {fetchError || 'Sesi patungan tidak ditemukan atau sudah kedaluwarsa.'}
                 </p>
-
-                <Button
-                    onClick={onBackToHome}
-                >
+                <Button onClick={onBackToHome}>
                     Kembali ke Beranda
                 </Button>
             </main>
         );
     }
 
-    const { name, participants, bills } = session;
+    const { name, participants, bills } = split;
     const sessionTotal = calculateSessionTotal(bills);
-    const participantBalances = calculateParticipantBalances(participants, bills);
-    const settlements = calculateSettlements(participantBalances);
 
     const handleCopy = async () => {
         const textToCopy = getShareText();
@@ -98,7 +142,7 @@ export default function Result({ savedSessions, onBackToHome }) {
                         </span>
 
                         <span className="text-xs">
-                            {formatDate(session.createdAt)}
+                            {formatDate(split.createdAt)}
                         </span>
                     </div>
                 </div>

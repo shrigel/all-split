@@ -132,8 +132,8 @@ function App() {
 		}
 	};
 
-	const handleCalculateSession = () => {
-		const result = finalizeSession();
+	const handleCalculateSession = async () => {
+		const result = await finalizeSession();
 
 		if (!result.success) {
 			setSessionValidation(result.validation);
@@ -150,14 +150,6 @@ function App() {
 	}, [currentSession]);
 
 	const handleOpenSession = (sessionId) => {
-		const sessionExists = savedSessions.some(
-			(s) => s.id === sessionId
-		);
-
-		if (!sessionExists) {
-			return;
-		}
-
 		navigate(`/result/${sessionId}`);
 	};
 

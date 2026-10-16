@@ -15,6 +15,7 @@ import {
 } from "../api/splits";
 import {
     getSplitReference,
+    getSplitReferences,
     removeSplitReference,
     upsertSplitReference
 } from "../utils/splitReferences";
@@ -38,6 +39,7 @@ import {
     updateAdjustment,
     deleteAdjustment
 } from "../api/adjustments";
+import { getSettlements } from "../api/settlements";
 
 const ACTIVE_SPLIT_KEY = 'allsplit_active_split_id';
 
@@ -53,7 +55,7 @@ export function useSessionManager() {
                     accessToken: ref.accessToken,
                     participants: [],
                     bills: [],
-                    navigation: { lastPage: 'participants' }
+                    navigation: { lastPage: ref.lastPage ?? 'participants' }
                 };
             }
         }
@@ -66,23 +68,59 @@ export function useSessionManager() {
             navigation: { lastPage: 'participants' }
         };
     });
-    const [savedSessions, setSavedSessions] = useState(() => loadSavedSessions());
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [savedSessions, setSavedSessions] = useState([]);
+    const [isLoadingSaved, setIsLoadingSaved] = useState(false);
+
+    const refreshSavedSessions = useCallback(async () => {
+        const references = getSplitReferences();
+
+        if (references.length === 0) {
+            setSavedSessions([]);
+            return;
+        }
+
+        setIsLoadingSaved(true);
+
+        try {
+            const results = await Promise.allSettled(
+                references.map(async (ref) => {
+                    const splitData = await getSplit(ref.splitId, ref.accessToken);
+                    return {
+                        ...splitData,
+                        accessToken: ref.accessToken
+                    };
+                })
+            );
+
+            const validSessions = [];
+
+            results.forEach((res, index) => {
+                if (res.status === 'fulfilled' && res.value) {
+                    validSessions.push(res.value);
+                } else {
+                    const status = res.reason?.status;
+
+                    if (status === 401 || status === 404) {
+                        removeSplitReference(references[index].splitId);
+                    }
+                }
+            });
+
+            setSavedSessions(validSessions);
+        } catch (err) {
+            console.error('Gagal memuat riwayat sesi dari backend:', err);
+        } finally {
+            setIsLoadingSaved(false);
+        }
+    }, []);
 
     useEffect(() => {
-        saveCurrentSession(currentSession);
-    }, [currentSession]);
-
-    useEffect(() => {
-        saveSavedSessions(savedSessions);
-    }, [savedSessions]);
+        refreshSavedSessions();
+    }, [refreshSavedSessions]);
 
     const startSession = async (name) => {
-        // setCurrentSession({
-        //     ...INITIAL_SESSION,
-        //     name
-        // });
         setIsLoading(true);
         setError(null);
 
@@ -173,8 +211,6 @@ export function useSessionManager() {
     }, []);
 
     const discardSession = useCallback(async (splitId) => {
-        // setCurrentSession(INITIAL_SESSION);
-
         const targetId = splitId || currentSession.id;
         const ref = getSplitReference(targetId);
 
@@ -227,19 +263,6 @@ export function useSessionManager() {
     }, []);
 
     const addParticipant = async (name) => {
-        // const newParticipant = {
-        //     id: 'p-' + Date.now(),
-        //     name
-        // };
-
-        // setCurrentSession((prev) => ({
-        //     ...prev,
-        //     participants: [
-        //         ...prev.participants,
-        //         newParticipant
-        //     ],
-        // }));
-
         if (!currentSession.id || !currentSession.accessToken) {
             throw new Error('Sesi aktif belum dibuat atau tidak valid.');
         }
@@ -265,19 +288,6 @@ export function useSessionManager() {
     };
 
     const removeParticipant = async (participantId) => {
-        // setCurrentSession((prev) => {
-        //     const usage = getParticipantUsage(prev, id);
-
-        //     if (usage.isUsed) {
-        //         return prev;
-        //     }
-
-        //     return {
-        //         ...prev,
-        //         participants: prev.participants.filter((p) => p.id !== id)
-        //     };
-        // });
-
         if (!currentSession.accessToken) return;
 
         setIsLoading(true);
@@ -310,31 +320,6 @@ export function useSessionManager() {
     };
 
     const saveBill = async (bill) => {
-        // setCurrentSession((prev) => {
-        //     const existingIndex = prev.bills.findIndex(
-        //         (b) => b.id === bill.id
-        //     );
-
-        //     if (existingIndex >= 0) {
-        //         const updatedBills = [...prev.bills];
-
-        //         updatedBills[existingIndex] = bill;
-
-        //         return {
-        //             ...prev,
-        //             bills: updatedBills
-        //         };
-        //     }
-
-        //     return {
-        //         ...prev,
-        //         bills: [
-        //             ...prev.bills,
-        //             bill
-        //         ]
-        //     };
-        // });
-
         if (!currentSession.id || !currentSession.accessToken) {
             throw new Error('Sesi aktif belum dibuat atau tidak valid.');
         }
@@ -424,13 +409,6 @@ export function useSessionManager() {
     };
 
     const deleteBill = async (billId) => {
-        // setCurrentSession((prev) => ({
-        //     ...prev,
-        //     bills: prev.bills.filter(
-        //         (b) => b.id !== billId
-        //     )
-        // }));
-
         if (!currentSession.accessToken) return;
 
         setIsLoading(true);
@@ -451,7 +429,11 @@ export function useSessionManager() {
         }
     };
 
-    const finalizeSession = () => {
+    const finalizeSession = async () => {
+        if (!currentSession.id || !currentSession.accessToken) {
+            throw new Error('Sesi aktif tidak valid.');
+        }
+
         const validation = validateSessionFinancials(currentSession);
 
         if (!validation.isValid) {
@@ -462,28 +444,33 @@ export function useSessionManager() {
             };
         }
 
-        const now = Date.now();
-        const sessionId = `session-${now}`;
+        setIsLoading(true);
+        setError(null)
 
-        const sessionToSave = {
-            name: currentSession.name,
-            participants: currentSession.participants,
-            bills: currentSession.bills,
-            id: sessionId,
-            createdAt: now,
-            expiresAt: now + (7 * 24 * 60 * 60 * 1000)
-        };
+        try {
+            const settlementData = await getSettlements(currentSession.id, currentSession.accessToken);
 
-        setSavedSessions((prev) => [
-            sessionToSave,
-            ...prev
-        ]);
+            refreshSavedSessions();
 
-        return {
-            success: true,
-            sessionId,
-            validation
-        };
+            return {
+                success: true,
+                sessionId: currentSession.id,
+                settlementData
+            };
+        } catch (err) {
+            const errorMsg = err.message || 'Gagal menghitung patungan';
+            setError(errorMsg);
+            return {
+                success: false,
+                sessionId: null,
+                validation: {
+                    isValid: false,
+                    errors: [{ code: err.code || 'SETTLEMENT_ERROR', message: errorMsg }]
+                }
+            };
+        } finally {
+            setIsLoading(false)
+        }
     };
 
     return {
