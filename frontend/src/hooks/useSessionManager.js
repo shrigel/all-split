@@ -22,6 +22,22 @@ import {
     createParticipant,
     deleteParticipant
 } from "../api/participants";
+import {
+    createBill,
+    updateBill,
+    deleteBill as apiDeleteBill
+} from "../api/bills";
+import {
+    createItem,
+    updateItem,
+    deleteItem
+} from "../api/items";
+import { updateItemShares } from "../api/itemShares";
+import {
+    createAdjustment,
+    updateAdjustment,
+    deleteAdjustment
+} from "../api/adjustments";
 
 const ACTIVE_SPLIT_KEY = 'allsplit_active_split_id';
 
@@ -293,40 +309,146 @@ export function useSessionManager() {
         );
     };
 
-    const saveBill = (bill) => {
-        setCurrentSession((prev) => {
-            const existingIndex = prev.bills.findIndex(
-                (b) => b.id === bill.id
-            );
+    const saveBill = async (bill) => {
+        // setCurrentSession((prev) => {
+        //     const existingIndex = prev.bills.findIndex(
+        //         (b) => b.id === bill.id
+        //     );
 
-            if (existingIndex >= 0) {
-                const updatedBills = [...prev.bills];
+        //     if (existingIndex >= 0) {
+        //         const updatedBills = [...prev.bills];
 
-                updatedBills[existingIndex] = bill;
+        //         updatedBills[existingIndex] = bill;
 
-                return {
-                    ...prev,
-                    bills: updatedBills
-                };
+        //         return {
+        //             ...prev,
+        //             bills: updatedBills
+        //         };
+        //     }
+
+        //     return {
+        //         ...prev,
+        //         bills: [
+        //             ...prev.bills,
+        //             bill
+        //         ]
+        //     };
+        // });
+
+        if (!currentSession.id || !currentSession.accessToken) {
+            throw new Error('Sesi aktif belum dibuat atau tidak valid.');
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const existingBill = currentSession.bills.find((b) => b.id === bill.id);
+            const isEditing = Boolean(existingBill);
+
+            if (isEditing) {
+                await updateBill(bill.id, currentSession.accessToken, bill.name, bill.payerId);
+
+                const currentItemIds = new Set(bill.items.map((item) => item.id));
+
+                const itemsToDelete = (existingBill.items || []).filter(
+                    (item) => !currentItemIds.has(item.id)
+                );
+
+                await Promise.all(
+                    itemsToDelete.map((item) => deleteItem(item.id, currentSession.accessToken))
+                );
+
+                await Promise.all(
+                    bill.items.map(async (item) => {
+                        const isNewItem = String(item.id).startsWith('item-');
+                        const savedItem = isNewItem
+                            ? await createItem(bill.id, currentSession.accessToken, item.name, item.quantity, item.unitPrice)
+                            : await updateItem(item.id, currentSession.accessToken, item.name, item.quantity, item.unitPrice);
+                        await updateItemShares(savedItem.id, currentSession.accessToken, item.assignedParticipantIds);
+                    })
+                );
+
+                const currentAdjIds = new Set((bill.adjustments || []).map((adj) => adj.id));
+
+                const adjustmentsToDelete = (existingBill.adjustments || []).filter(
+                    (adj) => !currentAdjIds.has(adj.id)
+                );
+
+                await Promise.all(
+                    adjustmentsToDelete.map((adj) => deleteAdjustment(adj.id, currentSession.accessToken))
+                );
+
+                if (bill.adjustments.length > 0) {
+                    await Promise.all(
+                        bill.adjustments.map(async (adj) => {
+                            const isNewAdj = String(adj.id).startsWith('adj-');
+                            if (isNewAdj) {
+                                await createAdjustment(bill.id, currentSession.accessToken, adj.name, adj.type, adj.amount, adj.allocationType);
+                            } else {
+                                await updateAdjustment(adj.id, currentSession.accessToken, adj.name, adj.type, adj.amount, adj.allocationType);
+                            }
+                        })
+                    );
+                }
+            } else {
+                const newBill = await createBill(currentSession.id, currentSession.accessToken, bill.name, bill.payerId);
+
+                await Promise.all(
+                    bill.items.map(async (item) => {
+                        const newItem = await createItem(newBill.id, currentSession.accessToken, item.name, item.quantity, item.unitPrice);
+                        await updateItemShares(newItem.id, currentSession.accessToken, item.assignedParticipantIds);
+                    })
+                );
+
+                if (bill.adjustments.length > 0) {
+                    await Promise.all(
+                        bill.adjustments.map(async (adj) => {
+                            await createAdjustment(newBill.id, currentSession.accessToken, adj.name, adj.type, adj.amount, adj.allocationType);
+                        })
+                    );
+                }
             }
 
-            return {
+            const splitData = await getSplit(currentSession.id, currentSession.accessToken);
+            setCurrentSession((prev) => ({
                 ...prev,
-                bills: [
-                    ...prev.bills,
-                    bill
-                ]
-            };
-        });
+                bills: splitData.bills
+            }));
+        } catch (err) {
+            setError(err.message || 'Gagal menyimpan tagihan.');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const deleteBill = (billId) => {
-        setCurrentSession((prev) => ({
-            ...prev,
-            bills: prev.bills.filter(
-                (b) => b.id !== billId
-            )
-        }));
+    const deleteBill = async (billId) => {
+        // setCurrentSession((prev) => ({
+        //     ...prev,
+        //     bills: prev.bills.filter(
+        //         (b) => b.id !== billId
+        //     )
+        // }));
+
+        if (!currentSession.accessToken) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await apiDeleteBill(billId, currentSession.accessToken);
+
+            setCurrentSession((prev) => ({
+                ...prev,
+                bills: prev.bills.filter((b) => b.id !== billId)
+            }));
+        } catch (err) {
+            setError(err.message || 'Gagal menghapus tagihan.');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const finalizeSession = () => {

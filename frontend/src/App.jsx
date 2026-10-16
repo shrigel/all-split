@@ -87,8 +87,8 @@ function App() {
 			await startSession(name);
 
 			navigate('/participants');
-		} catch (error) {
-			console.error(error);
+		} catch (err) {
+			console.error(err);
 		}
 	};
 
@@ -105,8 +105,8 @@ function App() {
 			}
 
 			navigate('/participants');
-		} catch (error) {
-			console.error(error)
+		} catch (err) {
+			console.error(err)
 		}
 	};
 
@@ -119,12 +119,17 @@ function App() {
 		navigate('/participants');
 	};
 
-	const handleSaveBill = (bill) => {
-		saveBill(bill);
+	const handleSaveBill = async (bill) => {
+		try {
+			await saveBill(bill);
 
-		setIsFormDirty(false);
+			setIsFormDirty(false);
 
-		navigate('/bills');
+			navigate('/bills');
+		} catch (err) {
+			console.error(err);
+			throw err;
+		}
 	};
 
 	const handleCalculateSession = () => {

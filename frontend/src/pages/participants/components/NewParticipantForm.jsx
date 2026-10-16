@@ -4,6 +4,7 @@ import Input from "../../../components/Input";
 
 export default function NewParticipantForm({
     participantName,
+    isSubmitting,
     onSubmit,
     onParticipantNameChange,
     errorMessage,
@@ -36,6 +37,7 @@ export default function NewParticipantForm({
                     type="submit"
                     iconStart="add"
                     className="px-4"
+                    disabled={isSubmitting}
                 >
                     Tambah
                 </Button>

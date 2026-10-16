@@ -28,13 +28,18 @@ export default function Bills({
         setBillToDelete(bill);
     };
 
-    const handleConfirmDeleteBill = () => {
+    const handleConfirmDeleteBill = async () => {
         if (!billToDelete) {
             return;
         }
 
-        onDeleteBill(billToDelete.id);
-        setBillToDelete(null);
+        try {
+            await onDeleteBill(billToDelete.id);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setBillToDelete(null);
+        }
     };
 
     return (

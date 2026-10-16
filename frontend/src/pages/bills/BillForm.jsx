@@ -37,6 +37,9 @@ export default function BillForm({
 	const [isAdjModalOpen, setIsAdjModalOpen] = useState(false);
 	const [editingAdj, setEditingAdj] = useState(null);
 
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState(null);
+
 	const [isScanReceiptModalOpen, setIsScanReceiptModalOpen] = useState(false);
 
 	useEffect(() => {
@@ -222,20 +225,29 @@ export default function BillForm({
 
 	const isReady = Boolean(billName.trim() && payerId && items.length > 0);
 
-	const handleSubmitBill = () => {
+	const handleSubmitBill = async () => {
 		if (!isReady) {
 			return;
 		}
 
 		const bill = {
-			id: billToEdit ? billToEdit.id : `bill-${Date.now()}`,
+			id: billToEdit ? billToEdit.id : undefined,
 			name: capitalizeWords(billName.trim()),
 			payerId,
 			items,
 			adjustments,
 		};
 
-		onSaveBill(bill);
+		setIsSubmitting(true);
+		setSubmitError(null);
+
+		try {
+			await onSaveBill(bill);
+		} catch (err) {
+			setSubmitError(err.message || 'Gagal menyimpan tagihan');
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	if (billId && !billToEdit) {
@@ -306,7 +318,7 @@ export default function BillForm({
 				<BillSummarySection total={finalTotal} billedCount={billedCount} />
 
 				<Button
-					disabled={!isReady}
+					disabled={!isReady || isSubmitting}
 					onClick={handleSubmitBill}
 					iconStart="check"
 				>

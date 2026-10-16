@@ -168,6 +168,7 @@ export default function Participants({
 
                 <NewParticipantForm
                     participantName={participantName}
+                    isSubmitting={isSubmitting}
                     onSubmit={handleSubmitParticipant}
                     onParticipantNameChange={handleParticipantNameChange}
                     errorMessage={errorMessage}
