@@ -13,6 +13,7 @@ import Button from "../../components/Button";
 import { getSplitReference } from "../../utils/splitReferences";
 import { getSplit } from "../../api/splits";
 import { getSettlements } from "../../api/settlements";
+import ParticipantDetailModal from "./components/ParticipantDetailModal";
 
 export default function Result({ onBackToHome }) {
     const { sessionId } = useParams();
@@ -24,6 +25,7 @@ export default function Result({ onBackToHome }) {
     const [fetchError, setFetchError] = useState(null);
 
     const [selectedBill, setSelectedBill] = useState(null);
+    const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
     const copyTimeoutRef = useRef(null);
 
@@ -177,6 +179,15 @@ export default function Result({ onBackToHome }) {
 
             <ResultExpensesSection
                 participantBalances={participantBalances}
+                onOpenParticipantDetail={setSelectedParticipant}
+            />
+
+            <ParticipantDetailModal
+                isOpen={Boolean(selectedParticipant)}
+                onClose={() => setSelectedParticipant(null)}
+                participant={selectedParticipant}
+                participants={participants}
+                bills={bills}
             />
 
             <ResultActions

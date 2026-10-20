@@ -42,7 +42,7 @@ export default function ResultBillsSection({
                             onClick={() => onOpenBillDetail(bill)}
                             className="flex items-center gap-2 py-4 cursor-pointer"
                         >
-                            <div className="flex justify-between items-center gap-2 w-full">
+                            <div className="flex justify-between items-center w-full">
                                 <div className="flex flex-col items-start">
                                     <span className="text-sm font-semibold">
                                         {bill.name}
