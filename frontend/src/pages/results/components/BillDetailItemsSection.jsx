@@ -22,7 +22,7 @@ export default function BillDetailItemsSection({
                             key={item.id}
                             className="py-2.5 flex flex-col gap-1.5"
                         >
-                            <div className="flex justify-between items-start">
+                            <div className="flex justify-between items-center">
                                 <div className="flex flex-col">
                                     <span className="text-xs font-bold text-on-surface">
                                         {capitalizeWords(item.name)}

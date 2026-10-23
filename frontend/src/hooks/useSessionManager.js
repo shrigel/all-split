@@ -40,6 +40,10 @@ import {
     deleteAdjustment
 } from "../api/adjustments";
 import { getSettlements } from "../api/settlements";
+import {
+    createResultShare,
+    getResultShare
+} from "../api/shares.js"
 
 const ACTIVE_SPLIT_KEY = 'allsplit_active_split_id';
 
@@ -146,6 +150,9 @@ export function useSessionManager() {
             });
 
             localStorage.setItem(ACTIVE_SPLIT_KEY, split.id);
+
+            console.log(split);
+            console.log(accessToken)
 
             return split;
         } catch (err) {
@@ -477,7 +484,7 @@ export function useSessionManager() {
         currentSession,
         isLoading,
         error,
-        savedSessions, // TODO: Nanti perlu dibikin reactive dengan subscription ke API / Dihapus
+        savedSessions,
         startSession,
         loadSession,
         resetCurrentSession,

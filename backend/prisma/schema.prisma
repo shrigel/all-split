@@ -16,6 +16,7 @@ model Split {
 
   participants Participant[]
   bills        Bill[]
+  resultShares ResultShare[]
 
   @@index([expiresAt])
 }
@@ -88,4 +89,15 @@ model BillAdjustment {
   bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
 
   @@index([billId])
+}
+
+model ResultShare {
+  id        String   @id @default(uuid()) @db.Uuid
+  splitId   String   @db.Uuid
+  tokenHash String   @unique @db.Char(64)
+  createdAt DateTime @default(now())
+
+  split Split @relation(fields: [splitId], references: [id], onDelete: Cascade)
+
+  @@index([splitId])
 }

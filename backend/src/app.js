@@ -10,6 +10,7 @@ import itemRouter from './routes/item.routes.js'
 import itemShareRouter from './routes/itemShare.routes.js';
 import adjustmentRouter from './routes/adjustment.route.js';
 import settlementRouter from './routes/settlement.route.js';
+import shareRouter from './routes/share.routes.js'
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api', itemRouter);
 app.use('/api', itemShareRouter);
 app.use('/api', adjustmentRouter);
 app.use('/api', settlementRouter);
+app.use('/api', shareRouter);
 
 app.use(notFound);
 app.use(errorHandler);
