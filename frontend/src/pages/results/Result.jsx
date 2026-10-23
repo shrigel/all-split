@@ -14,6 +14,7 @@ import { getSplitReference } from "../../utils/splitReferences";
 import { getSplit } from "../../api/splits";
 import { getSettlements } from "../../api/settlements";
 import ParticipantDetailModal from "./components/ParticipantDetailModal";
+import { createResultShare } from "../../api/shares";
 
 export default function Result({ onBackToHome }) {
     const { sessionId } = useParams();
@@ -28,6 +29,10 @@ export default function Result({ onBackToHome }) {
     const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
     const copyTimeoutRef = useRef(null);
+
+    const [shareUrl, setShareUrl] = useState(null);
+    const [isLinkCopied, setIsLinkCopied] = useState(false);
+    const [isSharingLink, setIsSharingLink] = useState(false);
 
     useEffect(() => {
         const loadResultData = async () => {
@@ -90,11 +95,53 @@ export default function Result({ onBackToHome }) {
         );
     }
 
+    const getOrCreateShareLink = async () => {
+        if (shareUrl) return shareUrl;
+
+        const ref = getSplitReference(sessionId);
+
+        if (!ref) return null;
+
+        setIsSharingLink(true);
+
+        try {
+            const response = await createResultShare(sessionId, ref.accessToken);
+            const link = `${window.location.origin}/share/${response.shareToken}`;
+
+            setShareUrl(link);
+
+            return link;
+        } catch (err) {
+            console.error("Gagal membuat share link", err);
+            return null;
+        } finally {
+            setIsSharingLink(false);
+        }
+    };
+
     const { name, participants, bills } = split;
     const sessionTotal = calculateSessionTotal(bills);
 
+    const getShareText = (link = null) => {
+        let text = generateSessionShareText({
+            name,
+            participants,
+            bills,
+            sessionTotal,
+            settlements,
+            participantBalances
+        });
+
+        if (link) {
+            text += `\n\n🔗 *Lihat rincian lengkap online:*\n${link}`;
+        }
+
+        return text;
+    };
+
     const handleCopy = async () => {
-        const textToCopy = getShareText();
+        const link = await getOrCreateShareLink();
+        const textToCopy = getShareText(link);
 
         try {
             await navigator.clipboard.writeText(textToCopy);
@@ -113,20 +160,28 @@ export default function Result({ onBackToHome }) {
         }
     };
 
-    const getShareText = () => {
-        return generateSessionShareText({
-            name,
-            participants,
-            bills,
-            sessionTotal,
-            settlements,
-            participantBalances
-        });
+    const handleCopyLink = async () => {
+        const link = await getOrCreateShareLink();
+        if (!link) return;
+
+        try {
+            await navigator.clipboard.writeText(link);
+
+            setIsLinkCopied(true);
+
+            setTimeout(() => {
+                setIsLinkCopied(false);
+            }, 2500);
+        } catch (error) {
+            console.error("Gagal menyalin tautan", error);
+        }
     };
 
-    const handleShareWA = () => {
-        const text = encodeURIComponent(getShareText());
-        window.open(`https://wa.me/?text=${text}`, '_blank');
+    const handleShareWA = async () => {
+        const link = await getOrCreateShareLink();
+        const text = getShareText(link);
+
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     };
 
     return (
@@ -193,6 +248,9 @@ export default function Result({ onBackToHome }) {
             <ResultActions
                 isCopied={isCopied}
                 onCopy={handleCopy}
+                isLinkCopied={isLinkCopied}
+                onCopyLink={handleCopyLink}
+                isSharingLink={isSharingLink}
                 onShareWA={handleShareWA}
                 onBackToHome={onBackToHome}
             />

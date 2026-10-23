@@ -15,6 +15,7 @@ import Participants from "./pages/participants/Participants";
 import Bills from "./pages/bills/Bills";
 import BillForm from "./pages/bills/BillForm";
 import Result from "./pages/results/Result";
+import SharedResult from "./pages/results/SharedResult";
 
 function App() {
 	const {
@@ -287,6 +288,11 @@ function App() {
 									onBackToHome={handleGoHome}
 								/>
 							}
+						/>
+
+						<Route
+							path="/share/:shareToken"
+							element={<SharedResult />}
 						/>
 					</Routes>
 				</div>
