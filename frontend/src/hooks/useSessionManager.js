@@ -151,9 +151,6 @@ export function useSessionManager() {
 
             localStorage.setItem(ACTIVE_SPLIT_KEY, split.id);
 
-            console.log(split);
-            console.log(accessToken)
-
             return split;
         } catch (err) {
             setError(err.message || "Gagal membuat sesi split");
